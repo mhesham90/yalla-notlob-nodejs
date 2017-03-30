@@ -1,0 +1,13 @@
+{
+  "name": "first_app",
+  "description": "my first express app",
+  "version": "1.0.0",
+  "main": "app3.js",
+  "scripts": {
+  	"start": "node app3.js"
+  },
+  "dependencies": {
+    "express": "^4.15.2",
+    "mongoose": "^4.9.1"
+  }
+}
