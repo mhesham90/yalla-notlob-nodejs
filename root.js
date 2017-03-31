@@ -1,10 +1,11 @@
 //set server port && ip address
-var server_port = process.env.OPENSHIFT_NODEJS_PORT || 8080;
+var server_port = process.env.OPENSHIFT_NODEJS_PORT || 8090;
 var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
 //set mongodb connection
-var mongodb_connection_string = 'mongodb://127.0.0.1:27017/' + "orders";
+var mongodb_connection_string = 'mongodb://127.0.0.1:27017/' + "ordersystem";
 //load Express Module
 var express = require('express');
+var fs = require('fs');
 var server = express();
 //connect to mongoose
 var mongoose = require("mongoose");
@@ -20,12 +21,15 @@ fs.readdirSync(__dirname+"/models").forEach(function (file) {
 
 
 //Entity "controller1"
-var controller1Router = require("./controllers/controller1");
-server.use("/controller1",controller1Router);
+var authorizeRouter = require("./controllers/authorize");
+server.use("/authorize",authorizeRouter);
 
+var orderRouter = require("./controllers/orders");
+server.use("/orders",orderRouter);
 
 server.get("/",function(request, response){
-    //response.redirect("/home controller");
+//  reponse.send("ay7aga");
+    // response.redirect("/home controller");
     //check at home controller if not logged in redirect to login
 });
 
