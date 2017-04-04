@@ -21,6 +21,7 @@ oplog.tail().then(function () {
 io.on("connection",function (client) {
     console.log('new client');
 
+
     oplog.on('insert',function (doc) {
         client.emit("new_notification",JSON.stringify(doc.o));
     })

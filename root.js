@@ -37,6 +37,9 @@ expressServer.use("/authorize",authorizeRouter);
 var orderRouter = require("./controllers/orders");
 expressServer.use("/orders",orderRouter);
 
+var groupRouter = require("./controllers/groups");
+expressServer.use("/groups",groupRouter);
+
 var notificationRouter = require("./controllers/notifications");
 expressServer.use("/notifications",notificationRouter);
 
