@@ -3,9 +3,9 @@ var Schema = mongoose.Schema;
 
 var notifications = new Schema({
     seen : Boolean,
-    from : String,
-    to : []
-
+    users: Array,
+    type:Number,
+    info:Array
 });
 
 mongoose.model("notifications",notifications);

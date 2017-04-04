@@ -6,7 +6,16 @@ var mongodb_connection_string = 'mongodb://127.0.0.1:27017/' + "ordersystem";
 //load Express Module
 var express = require('express');
 var fs = require('fs');
-var server = express();
+
+//socket io
+var expressServer=express();
+
+var http=require('http');
+var httpSERVER=http.createServer(expressServer);
+ io=require('socket.io')(httpSERVER);
+
+
+
 //connect to mongoose
 var mongoose = require("mongoose");
 if(process.env.OPENSHIFT_MONGODB_DB_URL){
@@ -20,14 +29,18 @@ fs.readdirSync(__dirname+"/models").forEach(function (file) {
 });
 
 
+
 //Entity "controller1"
 var authorizeRouter = require("./controllers/authorize");
-server.use("/authorize",authorizeRouter);
+expressServer.use("/authorize",authorizeRouter);
 
 var orderRouter = require("./controllers/orders");
-server.use("/orders",orderRouter);
+expressServer.use("/orders",orderRouter);
 
-server.get("/",function(request, response){
+var notificationRouter = require("./controllers/notifications");
+expressServer.use("/notifications",notificationRouter);
+
+expressServer.get("/",function(request, response){
 //  reponse.send("ay7aga");
     // response.redirect("/home controller");
     //check at home controller if not logged in redirect to login
@@ -35,4 +48,7 @@ server.get("/",function(request, response){
 
 
 
-server.listen(server_port,server_ip_address);
+
+
+httpSERVER.listen(8092);
+//server.listen(server_port,server_ip_address);
