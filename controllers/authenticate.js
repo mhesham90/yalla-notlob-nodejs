@@ -52,8 +52,8 @@ router.post("/register",postRequestMiddleware,function(request,response){
     }
 
     if(errors.length > 0){
-      response.json(errors);
-      // console.log(errors);
+       response.json(errors);
+      //  console.log(errors);
     }
     else{
 
@@ -69,7 +69,7 @@ router.post("/register",postRequestMiddleware,function(request,response){
       if(!err){
         console.log("success");
         //send token
-         response.json({success:true});
+          response.json({success:true});
     //   response.json(at);
         // response.redirect("/home");
       }else{
@@ -78,7 +78,7 @@ router.post("/register",postRequestMiddleware,function(request,response){
     })
 
   }
-response.send("ay7aga");
+// response.send("ay7aga");
 //,avatar:request.file.filename
 //uploadFileMiddleware.single("avatar"),
 
