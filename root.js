@@ -42,6 +42,9 @@ expressServer.use("/user",userRouter);
 var orderRouter = require("./controllers/orders");
 expressServer.use("/orders",orderRouter);
 
+var groupRouter = require("./controllers/groups");
+expressServer.use("/groups",groupRouter);
+
 var notificationRouter = require("./controllers/notifications");
 expressServer.use("/notifications",notificationRouter);
 
@@ -57,3 +60,5 @@ expressServer.get("/",function(request, response){
 
 // httpSERVER.listen(8092);
 httpSERVER.listen(server_port,server_ip_address);
+
+//server.listen(server_port,server_ip_address);
