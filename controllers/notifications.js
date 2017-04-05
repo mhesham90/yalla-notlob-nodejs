@@ -38,5 +38,15 @@ router.put('/',function (request,response) {
 
 
 
+var mongoose = require("mongoose");
+
+router.use(function(request,response,next){
+    // Set Origin to allow other domains to send request
+    response.setHeader("Access-Control-Allow-Origin","*");
+    // allow four HTTP method
+    response.setHeader("Access-Control-Allow-Methods","GET,POST,PUT,DELETE");
+
+    next();
+});
 
 module.exports = router;

@@ -9,6 +9,7 @@ var notifications = new Schema({
      userId:{type: Schema.ObjectId, ref:'users'},
      groupId:{type: Schema.ObjectId, ref:'groups'},
      orderId:{type: Schema.ObjectId, ref:'orders'}
+
 });
 
 mongoose.model("notifications",notifications);
