@@ -33,10 +33,10 @@ fs.readdirSync(__dirname+"/models").forEach(function (file) {
 //Entity "controller1"
 
 var authRouter = require("./controllers/authenticate");
-server.use("/authenticate",authRouter);
+expressServer.use("/authenticate",authRouter);
 
 var userRouter = require("./controllers/user");
-server.use("/user",userRouter);
+expressServer.use("/user",userRouter);
 
 
 var orderRouter = require("./controllers/orders");
@@ -55,5 +55,5 @@ expressServer.get("/",function(request, response){
 
 
 
-httpSERVER.listen(8092);
-//server.listen(server_port,server_ip_address);
+// httpSERVER.listen(8092);
+httpSERVER.listen(server_port,server_ip_address);

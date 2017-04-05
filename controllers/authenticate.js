@@ -5,6 +5,7 @@ var bcrypt=require("bcrypt");
 var postRequestMiddleware=bodyParser.urlencoded({extended:false});
 var multer=require("multer");
 var mongoose = require("mongoose");
+ var validator=require('validator');
 
 var uploadFileMiddleware=multer({dest:__dirname+"/../public",
 fileFilter:function(request,file,cb){
@@ -40,20 +41,44 @@ router.get("/",function(request,response){
 
 router.post("/register",postRequestMiddleware,function(request,response){
     var UserModel=mongoose.model("users");
-    var salt=bcrypt.genSaltSync();
-    var hashedPassword=bcrypt.hashSync(request.body.password,salt);
+
     //access token
-    var user=new UserModel({email:request.body.email,username:request.body.username,password:hashedPassword});
+    var errors=[];
+    if(validator.isEmpty(request.body.email) || validator.isEmpty(request.body.username) || validator.isEmpty(request.body.password)){
+      errors.push("empty");
+    }
+    if(!validator.isEmail(request.body.email)){
+    errors.push("invalid email");
+    }
+
+    if(errors.length > 0){
+      response.json(errors);
+      // console.log(errors);
+    }
+    else{
+
+      var mail=validator.escape(request.body.email);
+      var username=validator.escape(request.body.username);
+      var password=validator.escape(request.body.password);
+
+      var salt=bcrypt.genSaltSync();
+      var hashedPassword=bcrypt.hashSync(password,salt);
+
+    var user=new UserModel({email:mail,username:username,password:hashedPassword});
     user.save(function(err){
       if(!err){
-
+        console.log("success");
+        //send token
+         response.json({success:true});
     //   response.json(at);
         // response.redirect("/home");
       }else{
-        response.json({success:false});
+         response.json({success:false});
       }
     })
 
+  }
+response.send("ay7aga");
 //,avatar:request.file.filename
 //uploadFileMiddleware.single("avatar"),
 
