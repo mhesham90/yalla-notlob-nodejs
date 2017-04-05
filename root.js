@@ -33,10 +33,10 @@ fs.readdirSync(__dirname+"/models").forEach(function (file) {
 //Entity "controller1"
 
 var authRouter = require("./controllers/authenticate");
-server.use("/authenticate",authRouter);
+expressServer.use("/authenticate",authRouter);
 
 var userRouter = require("./controllers/user");
-server.use("/user",userRouter);
+expressServer.use("/user",userRouter);
 
 
 var orderRouter = require("./controllers/orders");

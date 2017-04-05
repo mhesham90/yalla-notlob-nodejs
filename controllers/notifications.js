@@ -29,24 +29,19 @@ router.get('/',function (request,response) {
 })
 
 router.put('/',function (request,response) {
-    var id ='58e4796e1c0d96b11de30e8f';
-    console.log('dkdk');
-    mongoose.model('notifications').update({_id:id},{$set:{seen:true}});
+    var id =request.params.id
+    console.log(id);
+    mongoose.model('notifications').update({_id:id},{$set:{seen:true}},function(err,groups){
+        if(!err){
+            response.status(200);
+            response.send("success ");
+        }else{
+            response.status(404);
+            response.send("Error");
+        }
+    });
 
-})
-
-
-
-
-var mongoose = require("mongoose");
-
-router.use(function(request,response,next){
-    // Set Origin to allow other domains to send request
-    response.setHeader("Access-Control-Allow-Origin","*");
-    // allow four HTTP method
-    response.setHeader("Access-Control-Allow-Methods","GET,POST,PUT,DELETE");
-
-    next();
 });
+
 
 module.exports = router;
