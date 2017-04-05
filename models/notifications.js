@@ -3,8 +3,9 @@ var Schema = mongoose.Schema;
 
 var notifications = new Schema({
     seen : Boolean,
-    from : String,
-    to : []
+    from : [{type:Schema.Types.ObjectId, ref:"users"}],
+    to : [{type:Schema.Types.ObjectId, ref:"users"}],
+    content: String
 
 });
 

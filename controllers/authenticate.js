@@ -38,8 +38,6 @@ router.get("/",function(request,response){
     //response.json
 });
 
-
-
 router.post("/register",postRequestMiddleware,function(request,response){
     var UserModel=mongoose.model("users");
     var salt=bcrypt.genSaltSync();
@@ -52,7 +50,7 @@ router.post("/register",postRequestMiddleware,function(request,response){
     //   response.json(at);
         // response.redirect("/home");
       }else{
-        response.send("Error");
+        response.json({success:false});
       }
     })
 
@@ -63,15 +61,21 @@ router.post("/register",postRequestMiddleware,function(request,response){
     //response.json
 });
 
+//gwa el find
+//mongoose.model("users").populate(user,{path:"friends"},function(err,result))
+
+
+
 router.post("/login",postRequestMiddleware,function(request,response){
 
-  mongoose.model("users").find({username:request.body.username},{_id:false,username:true,password:true},function(err,user){
+  mongoose.model("users").find({username:request.body.username},{_id:true,username:true,password:true},function(err,user){
        if(user[0]!=undefined){
          //check accessToken
 
         //  if(bcrypt.compareSync(request.body.password, user.password)){
    bcrypt.compare(request.body.password, user[0].password, function(err, res) {
     if(res==true){
+      response.json({success:true,id:user[0]._id})
     //  response.redirect("/home")
     }
     // else{
@@ -85,18 +89,19 @@ router.post("/login",postRequestMiddleware,function(request,response){
 
   else{
     request.flash("message","Invalid username or password");
-    response.redirect("/authorize/login")
+    response.redirect("/authenticate/login")
   }
   })
 
 })
 
-router.post("/loginwithfb",function(request,response){
 
-    //update db
-    //response.json
-});
 
+//
+// router.put("/",function(request,response){
+//     //update db
+//     //response.json
+// });
 router.delete("/",function(request,response){
     //delete from db
     //response.json

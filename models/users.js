@@ -7,7 +7,8 @@ var users = new Schema({
     password: String,
     accessToken: String,
     avatar : String,
-    friends : []
+    friends : [{type:Schema.Types.ObjectId, ref:"users"}],
+    notifications : [{type:Schema.Types.ObjectId, ref:"notifications"}]
 });
 
 mongoose.model("users",users);
