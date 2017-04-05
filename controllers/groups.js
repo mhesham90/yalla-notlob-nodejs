@@ -15,20 +15,22 @@ router.use(function(request,response,next){
 //list groups
 router.get("/:id",function(request,response){
     var id =request.params.id;
-    if(id=='all') {
-        mongoose.model("groups").find({}, {}, function (err, groups) {
+    var me ='58e3a68f82e295716c68bf34';
+
+    if(id=='in') {
+        mongoose.model("groups").find({members:me}).populate('members owner',['username']).exec(function (err, groups) {
             if(!err){
                 response.status(200);
                 response.json(groups);
+                console.log(groups);
             }else{
                 response.status(404);
-                response.send("Error");
+                response.send(err);
             }
         })
     }
-    else if(id=='me'){
-        var me ='1';
-        mongoose.model("groups").find({members:me},{},function(err,groups){
+    else if(id=='my'){
+        mongoose.model("groups").find({owner:'58e47cb51c0d96b11de30e90'}).populate('members owner',['username']).exec(function (err, groups) {
             if(!err){
                 response.status(200);
                 response.json(groups);
