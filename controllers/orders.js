@@ -156,14 +156,14 @@ if(!err){response.json({success:true})}
 })
 })
 
-// router.delete("/removemeal",postRequestMiddleware,function(request,response){
-//   mongoose.model("users").find({email:request.email},{_id:true},function(err,user){
-//   mongoose.model("orders").update({owner:user[0]._id},{$pull:{ meals:}
-//     ,function(err,order){
-//
-//   })
-// })
-// })
+router.delete("/removemeal",postRequestMiddleware,function(request,response){
+  mongoose.model("users").find({email:request.email},{_id:true},function(err,user){
+  mongoose.model("orders").update({_id:request.body.orderid,owner:user[0]._id},{$pull:{ meals:{ _id:request.body.mealid } }}
+    ,function(err,order){
+
+  })
+})
+})
 
 router.post("/addmeal",postRequestMiddleware,function(request,response){
   mongoose.model("users").find({email:request.token},{_id:true,username:true},function(err,user){
