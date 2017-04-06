@@ -45,8 +45,8 @@ expressServer.use("/authenticate",authRouter);
 ////token middleware
 
  expressServer.use(function (request,response,next) {
-          var token =request.headers['x-access-token'];
-      //   var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU4ZTYyNWZiM2Q1ZjZiODExZmY4OGI4MSIsImlhdCI6MTQ5MTUwNTQwNH0.uNaS9NDWmrIgPHVNtQHqmfgjXlc7YnvWiUc21a4MbPU"
+          // var token =request.headers['x-access-token'];
+        var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU4ZTY4YjJlZjNlMzE2NDEwZjYzMThmNSIsImVtYWlsIjoia29rb0BnbWFpbC5jb20iLCJpYXQiOjE0OTE1MTIxMDN9.2_2mVXidW6m_okg0wYg4PPEezM5oQ5iKugNtH4bhcK8"
         if(token!== undefined) {
             jwt.verify(token, APP_SECRET, function (err, decoded) {
                 if (err) {
