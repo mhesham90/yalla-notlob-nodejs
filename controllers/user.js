@@ -8,7 +8,8 @@ var mongoose = require("mongoose");
 
 router.get("/listfriends",function(request,response){
   //get username from access token
-  mongoose.model("users").find({_id:"58e634304045c81e8f22f5b7"},function(err,user){
+
+  mongoose.model("users").find({email:request.token},function(err,user){
     // ' userId groupId orderId ',
 mongoose.model("users").populate(user,{path:"friends"},function(err,result){
   var friendsarray=result[0].friends;
@@ -24,7 +25,7 @@ mongoose.model("users").populate(user,{path:"friends"},function(err,result){
 });
 
 router.get("/friendsactivity",function(request,response){
-  mongoose.model("users").find({_id:"58e634304045c81e8f22f5b7"},{_id:false,friends:true},function(err,user){
+  mongoose.model("users").find({email:request.token},{_id:false,friends:true},function(err,user){
      var friendsarray=user[0].friends;
       mongoose.model("orders").find({owner:{$in:friendsarray}},
         {resturant:true,_id:true,for:true,owner:true},
@@ -58,7 +59,7 @@ router.post("/addfriend",postRequestMiddleware,function(request,response){
      }
     else{
         //  response.send(user[0]._id);
-       mongoose.model("users").update({_id:"58e634304045c81e8f22f5b7"},{ $push:{friends: user[0]._id} },function(err,i){
+       mongoose.model("users").update({email:request.token},{ $push:{friends: user[0]._id} },function(err,i){
          response.json({success:true});
         //  response.send(user[0]._id);
        });
@@ -70,7 +71,7 @@ router.post("/addfriend",postRequestMiddleware,function(request,response){
 router.post("/unfriend",postRequestMiddleware,function(request,response){
 
   mongoose.model("users").find({username:request.body.username},{_id:true},function(err,friend){
-    mongoose.model("users").update({_id:"1"},{$pull:{friends:friend[0]._id}},function(err,user){
+    mongoose.model("users").update({email:request.token},{$pull:{friends:friend[0]._id}},function(err,user){
       if(!err){
         response.json({success:true});
       }

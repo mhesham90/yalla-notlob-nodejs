@@ -2,8 +2,8 @@ var express = require('express');
 var router = express.Router();
 var bodyParser=require("body-parser");
 var bcrypt=require("bcrypt");
-var postRequestMiddleware=bodyParser.json({limit: '20mb'});
-// var postRequestMiddleware=bodyParser.````````urlencoded({extended:true});
+// var postRequestMiddleware=bodyParser.json({limit: '20mb'});
+ var postRequestMiddleware=bodyParser.urlencoded({extended:true});
 var jwt=require("jsonwebtoken");
 var multer=require("multer");
 var mongoose = require("mongoose");
@@ -113,12 +113,19 @@ router.post("/login",postRequestMiddleware,function(request,response){
     //  response.json({success:true,id:user[0]._id})
     //  response.redirect("/home")
 
+    // console.log(user[0]);
+    // var userstr=user[0]._id
 
-      jwt.sign(user,APP_SECRET,{algorithm:"HS256"},function(err,token){
-        response.json({token:token,success:true});
+      jwt.sign(user[0].email,APP_SECRET,{algorithm:"HS256"},function(err,token){
+        // request.accesstoken=token;
+        // console.log(token);
+        response.json(token);
       });
       // response.json({success:true})
 
+    }
+    else{
+      response.json({msg:"wrong password"});
     }
 });
 

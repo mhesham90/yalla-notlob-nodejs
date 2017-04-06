@@ -19,7 +19,7 @@ var httpSERVER=http.createServer(expressServer);
 io=require('socket.io')(httpSERVER);
 ioLoggedClients=[];
 ioUnloggedClients=[];
-const APP_SECRET="LINA";
+const APP_SECRET="@#$@#%!@#!@#";
 
 
 //connect to mongoose
@@ -44,29 +44,30 @@ expressServer.use("/authenticate",authRouter);
 
 ////token middleware
 
-// expressServer.use(function (request,response,next) {
-//    // if(request.originalUrl!=='/authenticate/login' && request.originalUrl!=='/authenticate/register'){
-//         var token =request.params.token;
-//         if(token!== undefined) {
-//             jwt.verify(token, APP_SECRET, function (err, decoded) {
-//                 if (err) {
-//                     console.log("error");
-//                     response.send(err);
-//                 } else {
-//                     request.token=decoded;
-//                     next();
-//                 }
-//             });
-//         }
-//         else{
-//             response.send("token does not exit")
-//         }
-//
-//     // }
-//     // else {
-//     //     next();
-//     // }
-// });
+ expressServer.use(function (request,response,next) {
+    // if(request.originalUrl!=='/authenticate/login' && request.originalUrl!=='/authenticate/register'){
+        //  var token =request.headers['x-access-token'];
+         var token = "eyJhbGciOiJIUzI1NiJ9.YWxpQGdtYWlsLmNvbQ.XTJ68-De_ihCAPtnW56Kjo0HSjYU9GF3wHJ5J2udUJs"
+        if(token!== undefined) {
+            jwt.verify(token, APP_SECRET, function (err, decoded) {
+                if (err) {
+                    console.log("error");
+                    response.send(err);
+                } else {
+                    request.token=decoded;
+                    next();
+                }
+            });
+        }
+        else{
+            response.send("token does not exit")
+        }
+
+    // }
+    // else {
+    //     next();
+    // }
+});
 
 
 var userRouter = require("./controllers/user");
