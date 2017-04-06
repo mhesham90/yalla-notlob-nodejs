@@ -11,17 +11,17 @@ var validator=require('validator');
 var jwt=require("jsonwebtoken");
 const APP_SECRET="@#$@#%!@#!@#";
 
-var uploadFileMiddleware=multer({dest:__dirname+"/../public",
-fileFilter:function(request,file,cb){
-  if(file.mimetype=="image/jpeg" || file.mimetype=="image/png"){
-    request.fileStatus="file uploaded";
-    cb(null,true);
-  }else{
-    request.fileStatus="file not uploaded";
-    cb(null,false);
-  }
-
-}})
+// var uploadFileMiddleware=multer({dest:__dirname+"/../public",
+// fileFilter:function(request,file,cb){
+//   if(file.mimetype=="image/jpeg" || file.mimetype=="image/png"){
+//     request.fileStatus="file uploaded";
+//     cb(null,true);
+//   }else{
+//     request.fileStatus="file not uploaded";
+//     cb(null,false);
+//   }
+//
+// }})
 
 router.use(function(request,response,next){
     // Set Origin to allow other domains to send request
@@ -82,7 +82,7 @@ mongoose.model("users").find({email:request.body.email},{},function(err,user){
 
       user.save(function(err){
         if(!err){
-
+          response.json({success:false});
         }else{
            response.json({success:false});
         }
@@ -107,35 +107,26 @@ router.post("/login",postRequestMiddleware,function(request,response){
   mongoose.model("users").find({email:request.body.email},{},function(err,user){
        if(user[0]!=undefined){
          //check accessToken
-
    bcrypt.compare(request.body.password, user[0].password, function(err, res) {
     if(res==true){
       jwt.sign(user,APP_SECRET,{algorithm:"HS256"},function(err,token){
-        response.json(token);
+        response.json({token:token,success:true});
       });
       // response.json({success:true})
     }
-    // else{
-    //   request.flash("message","Invalid ");
-    //   response.redirect("/authorize/login")
-    // }
 });
 
        }
 
 
   else{
-    request.flash("message","Invalid username or password");
-    response.redirect("/authenticate/login")
+    // request.flash("message","Invalid email or password");
+    response.json({msg:"no such user"});
   }
   })
 
 })
 
-
-router.post("/loginwfb",postRequestMiddleware,function(request,response){
-
-})
 
 
 //

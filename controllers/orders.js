@@ -14,21 +14,23 @@ router.use(function(request,response,next){
 });
 //list orders
 router.get("/allorders",function(request,response){
-  mongoose.model("orders").find({},{},function(err,orders){
-    response.json(orders)
+  var orderslist=[];
+  mongoose.model("orders").find({owner:"58e62bcf3d5f6b811ff88b82"},{for:true,resturant:true,invitedfriends:true,
+  invitedgroups:true,joined:true,checkedout:true},
+  function(err,orders){
+
   })
 })
 
 router.get("/latestorders",function(request,response){
-
-    mongoose.model("orders").find({accessToken:"1"},{"limit": 10},function(err,orders){
+  mongoose.model("orders").find({accessToken:"1"},{"limit": 10},function(err,orders){
       response.json(orders);
     });
 })
 
 router.get("/viewdetails",function(request,response){
 
-    mongoose.model("orders").find({_id:request.body.id},function(err,order){
+    mongoose.model("orders").find({_id:request.body.id,owner:"58e62bcf3d5f6b811ff88b82"},function(err,order){
       response.json(order);
     });
 })
@@ -36,27 +38,39 @@ router.get("/viewdetails",function(request,response){
 //add order
 router.post("/add",postRequestMiddleware,function(request,response){
     var OrderModel=mongoose.model("orders");
-    var username="";
+    //var username="";
     //access token check
-    mongoose.model("users").find({accessToken:"1"},{},function(err,user){
-      if(request.body.invitedfriend){
-        mongoose.model("users").find({username:request.body.invitedfriend},{_id:true},function(err,friend){
-        var order=new OrderModel({for:request.body.for,resturant:request.body.resturant,name:request.body.name,owner:user[0]._id,checkedout:false,meals:[],invitedfriend:friend[0]._id,joined:[]});
-      })
-      }
-      else if(request.body.invitedgroup){
-        mongoose.model("groups").find({name:request.body.invitedgroup},{_id:true},function(err,group){
-        var order=new OrderModel({name:request.body.name,owner:user[0]._id,checkedout:false,meals:[],invitedgroup:group[0]._id,joined:[]});
-      })
-      }
+    mongoose.model("users").find({accessToken:"2"},{_id:true},function(err,user){
+      // console.log(user[0]._id)
+      if(request.body.invitedfriends){
+        mongoose.model("users").find({username:{$in:request.body.invitedfriends}},{_id:true},function(err,friends){
 
+        var order=new OrderModel({for:request.body.for,resturant:request.body.resturant,name:request.body.name,
+          owner:user[0]._id,checkedout:false,meals:[],invitedfriends:friends,joined:[]});
+          order.save(function(err){
+          if(!err){
+            response.json("success");
+          }else{
+            response.json("Error");
+          }
+        })
+      })
+      }
+      else if(request.body.invitedgroups){
+        mongoose.model("groups").find({name:{$in:request.body.invitedgroups}},{_id:true},function(err,groups){
+        var order=new OrderModel({for:request.body.for,resturant:request.body.resturant,name:request.body.name,
+        owner:user[0]._id,checkedout:false,meals:[],invitedgroups:groups,joined:[]});
         order.save(function(err){
         if(!err){
           response.json("success");
         }else{
-          response.send("Error");
+          response.json("Error");
         }
       })
+      })
+      }
+
+
       //username=user.username;
     })
 });
@@ -88,7 +102,7 @@ router.delete("/delete",postRequestMiddleware,function(request,response){
 
 router.delete("/removeinvited",postRequestMiddleware,function(request,response){
   //orderid
-  mongoose.model("orders").update({_id:request.body.orderid},{$pull:{invited:request.body.personid}},function(err,res){
+  mongoose.model("orders").update({_id:request.body.orderid},{$pull:{invitedfriends:request.body.personid}},function(err,res){
 if(!err){response.json({success:true})}
   })
 })
@@ -98,7 +112,26 @@ router.delete("/removemeal",postRequestMiddleware,function(request,response){
 })
 
 router.post("/addmeal",postRequestMiddleware,function(request,response){
+  mongoose.model("users").find({accessToken:"1"},{_id:true,username:true},function(err,user){
+  mongoose.model("orders").update(
+    {_id:request.body.id},{
+    $push:{ meals:{person:user[0].username,personid:user[0]._id,
+    item:request.body.item,price:request.body.price,amount:request.body.amount,comment:request.body.comment} },
+    $pull:{ invitedfriends:user[0]._id},
+    $push:{ joined:user[0]._id }
+   },
+    function(err,order){
+if(!err){
+  response.json({success:true});
+}
+  })
+  // mongoose.model("orders").find({_id:request.body.id},
+  //
+  // })
+
+  })
   //remove from invited to joined
+
 })
 
 module.exports = router;
