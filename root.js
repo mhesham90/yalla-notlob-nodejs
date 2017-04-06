@@ -53,9 +53,9 @@ expressServer.use("/authenticate",authRouter);
                     console.log("error");
                     response.send(err);
                 } else {
-                    response.json(decoded)
-                   // request.token=decoded;
-                   // next();
+
+                    request.token=decoded;
+                    next();
                 }
             });
         }

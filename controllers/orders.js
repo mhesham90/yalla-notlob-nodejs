@@ -23,7 +23,7 @@ router.get("/allorders",function(request,response){
   //
   //     var invitedgroups=[];
   //     var invitedfriends=[];
-  mongoose.model("users").find({email:request.token},function(err,user){
+  mongoose.model("users").find({email:request.token.id},function(err,user){
       mongoose.model('orders').find({owner:user[0]._id})
       .populate('joined',['username,name']).exec(function (err,orders) {
         console.log(orders[0])
