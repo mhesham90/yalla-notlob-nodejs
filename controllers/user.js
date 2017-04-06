@@ -5,9 +5,10 @@ var bcrypt=require("bcrypt");
 var postRequestMiddleware=bodyParser.urlencoded({extended:false});
 var mongoose = require("mongoose");
 
+
 router.get("/listfriends",function(request,response){
   //get username from access token
-  mongoose.model("users").find({username:"amira"},function(err,user){
+  mongoose.model("users").find({email:"amira@gmail.com"},function(err,user){
 mongoose.model("users").populate(user,{path:"friends"},function(err,result){
    response.json(result[0].friends);
   // response.json(result);
@@ -27,7 +28,7 @@ router.get("/friendsactivity",function(request,response){
 
 router.put("/addfriend",postRequestMiddleware,function(request,response){
   //
-   mongoose.model("users").find({username:request.body.username},function(err,user){
+   mongoose.model("users").find({email:request.body.email},function(err,user){
 
      if(user==undefined){
        response.json({success:false,error:"No such user"});
@@ -43,7 +44,18 @@ router.put("/addfriend",postRequestMiddleware,function(request,response){
    })
 })
 
+router.post("/unfriend",postRequestMiddleware,function(request,response){
 
+  mongoose.model("users").find({username:request.body.username},{_id:true},function(err,friend){
+    mongoose.model("users").update({accessToken:"1"},{$pull:{friends:friend[0]._id}},function(err,user){
+      if(!err){
+        response.json({success:true});
+      }
+      else{  response.json({success:false}); }
+    })
+  })
+
+})
 
 
 

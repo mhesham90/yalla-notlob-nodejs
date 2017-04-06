@@ -14,7 +14,7 @@ router.use(function(request,response,next){
 });
 //list orders
 router.get("/allorders",function(request,response){
-  mongoose.model("orders").find({accessToken:"1"},{},function(err,orders){
+  mongoose.model("orders").find({},{},function(err,orders){
     response.json(orders)
   })
 })
@@ -39,9 +39,18 @@ router.post("/add",postRequestMiddleware,function(request,response){
     var username="";
     //access token check
     mongoose.model("users").find({accessToken:"1"},{},function(err,user){
+      if(request.body.invitedfriend){
+        mongoose.model("users").find({username:request.body.invitedfriend},{_id:true},function(err,friend){
+        var order=new OrderModel({for:request.body.for,resturant:request.body.resturant,name:request.body.name,owner:user[0]._id,checkedout:false,meals:[],invitedfriend:friend[0]._id,joined:[]});
+      })
+      }
+      else if(request.body.invitedgroup){
+        mongoose.model("groups").find({name:request.body.invitedgroup},{_id:true},function(err,group){
+        var order=new OrderModel({name:request.body.name,owner:user[0]._id,checkedout:false,meals:[],invitedgroup:group[0]._id,joined:[]});
+      })
+      }
 
-      var order=new OrderModel({name:request.body.name,owner:user[0]._id,checkedout:false,meals:[request.body.meals],invitations:[request.body.invites],participants:[request.body.participants]});
-      order.save(function(err){
+        order.save(function(err){
         if(!err){
           response.json("success");
         }else{
@@ -52,17 +61,17 @@ router.post("/add",postRequestMiddleware,function(request,response){
     })
 });
 
-router.put("/edit",postRequestMiddleware,function(request,response){
-    mongoose.model("orders").find({_id:request.body.id},{},function(err,order){
-      if(order[0].checkedout==false){
-        response.json("already checked out order");
-      }
-      //update order
-      else{
-
-      }
-    })
-})
+// router.put("/edit",postRequestMiddleware,function(request,response){
+//     mongoose.model("orders").find({_id:request.body.id},{},function(err,order){
+//       if(order[0].checkedout==false){
+//         response.json("already checked out order");
+//       }
+//       //update order
+//       else{
+//
+//       }
+//     })
+// })
 
 //cancel order
 router.delete("/delete",postRequestMiddleware,function(request,response){
@@ -82,6 +91,14 @@ router.delete("/removeinvited",postRequestMiddleware,function(request,response){
   mongoose.model("orders").update({_id:request.body.orderid},{$pull:{invited:request.body.personid}},function(err,res){
 if(!err){response.json({success:true})}
   })
+})
+
+router.delete("/removemeal",postRequestMiddleware,function(request,response){
+
+})
+
+router.post("/addmeal",postRequestMiddleware,function(request,response){
+  //remove from invited to joined
 })
 
 module.exports = router;

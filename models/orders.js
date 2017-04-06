@@ -3,15 +3,20 @@ var Schema = mongoose.Schema;
 
 var orders = new Schema({
     name : String,
+    for:String,
+    resturant:String,
     owner : {type:Schema.Types.ObjectId, ref:"users"},
     checkedout : Boolean,
     createdAt: {type:Date,default:Date.now},
-    invitations : [{type:Schema.Types.ObjectId, ref:"users"}],
+    invitedfriend : {type:Schema.Types.ObjectId, ref:"users"},
+    invitedgroup:{type:Schema.Types.ObjectId, ref:"groups"},
     participants : [{type:Schema.Types.ObjectId, ref:"users"}],
     meals: [{
+          name:[{type:Schema.Types.ObjectId, ref:"users"}],
           item:String,
           amount:Number,
-          price:Number
+          price:Number,
+          comment:String
        }]
 
 });
