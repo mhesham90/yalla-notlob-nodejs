@@ -120,9 +120,11 @@ router.post("/login",postRequestMiddleware,function(request,response){
         // request.accesstoken=token;
         // console.log(token);
         response.json(token);
-      });
+
       // response.json({success:true})
 
+    }else{
+    	response.json({msg:'wrong email or password',success:false});
     }
     else{
       response.json({msg:"wrong password"});
@@ -134,7 +136,7 @@ router.post("/login",postRequestMiddleware,function(request,response){
 
   else{
     // request.flash("message","Invalid email or password");
-    response.json({msg:"no such user"});
+    response.json({msg:'wrong email or password',success:false});
   }
   })
 
