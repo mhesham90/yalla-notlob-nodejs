@@ -6,7 +6,7 @@ var orders = new Schema({
     resturant:String,
     for:String,
     owner : {type:Schema.Types.ObjectId, ref:"users"},
-    checkedout : Boolean,
+    status : String,
     createdAt: {type:Date,default:Date.now},
     invitedfriends:[{type:Schema.Types.ObjectId, ref:"users"}],
     invitedgroups:[{type:Schema.Types.ObjectId, ref:"groups"}],

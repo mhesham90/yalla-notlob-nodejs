@@ -8,10 +8,16 @@ var mongoose = require("mongoose");
 
 router.get("/listfriends",function(request,response){
   //get username from access token
-  mongoose.model("users").find({email:"amira@gmail.com"},function(err,user){
+  mongoose.model("users").find({_id:"58e634304045c81e8f22f5b7"},function(err,user){
+    // ' userId groupId orderId ',
 mongoose.model("users").populate(user,{path:"friends"},function(err,result){
-   response.json(result[0].friends);
-  // response.json(result);
+  var friendsarray=result[0].friends;
+  var friends=[];
+  friendsarray.forEach(function (friend) {
+    friends.push(friend.username);
+  })
+    response.json(friends);
+  //  response.json(result);
 })
   })
 
@@ -26,7 +32,7 @@ router.get("/friendsactivity",function(request,response){
 })
 })
 
-router.put("/addfriend",postRequestMiddleware,function(request,response){
+router.post("/addfriend",postRequestMiddleware,function(request,response){
   //
    mongoose.model("users").find({email:request.body.email},function(err,user){
 
@@ -35,7 +41,7 @@ router.put("/addfriend",postRequestMiddleware,function(request,response){
      }
     else{
         //  response.send(user[0]._id);
-       mongoose.model("users").update({accessToken:"1"},{ $push:{friends: user[0]._id} },function(err,i){
+       mongoose.model("users").update({_id:"58e634304045c81e8f22f5b7"},{ $push:{friends: user[0]._id} },function(err,i){
          response.json({success:true});
         //  response.send(user[0]._id);
        });
