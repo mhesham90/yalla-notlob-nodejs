@@ -44,29 +44,29 @@ expressServer.use("/authenticate",authRouter);
 
 ////token middleware
 
-expressServer.use(function (request,response,next) {
-   // if(request.originalUrl!=='/authenticate/login' && request.originalUrl!=='/authenticate/register'){
-        var token =request.params.token;
-        if(token!== undefined) {
-            jwt.verify(token, APP_SECRET, function (err, decoded) {
-                if (err) {
-                    console.log("error");
-                    response.send(err);
-                } else {
-                    request.token=decoded;
-                    next();
-                }
-            });
-        }
-        else{
-            response.send("token does not exit")
-        }
-
-    // }
-    // else {
-    //     next();
-    // }
-});
+// expressServer.use(function (request,response,next) {
+//    // if(request.originalUrl!=='/authenticate/login' && request.originalUrl!=='/authenticate/register'){
+//         var token =request.params.token;
+//         if(token!== undefined) {
+//             jwt.verify(token, APP_SECRET, function (err, decoded) {
+//                 if (err) {
+//                     console.log("error");
+//                     response.send(err);
+//                 } else {
+//                     request.token=decoded;
+//                     next();
+//                 }
+//             });
+//         }
+//         else{
+//             response.send("token does not exit")
+//         }
+//
+//     // }
+//     // else {
+//     //     next();
+//     // }
+// });
 
 
 var userRouter = require("./controllers/user");
