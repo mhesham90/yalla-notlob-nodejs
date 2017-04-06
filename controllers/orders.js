@@ -23,13 +23,16 @@ router.get("/allorders",function(request,response){
   //
   //     var invitedgroups=[];
   //     var invitedfriends=[];
-  mongoose.model("users").find({email:request.token.id},function(err,user){
-      mongoose.model('orders').find({owner:user[0]._id})
-      .populate('joined',['username,name']).exec(function (err,orders) {
-        console.log(orders[0])
+      mongoose.model('orders').find({owner:request.token.id})
+      .populate('joined',['name']).exec(function (err,orders) {
+          if(!err) {
+              console.log(orders)
+              response.json(orders)
+          }
+          else response.send(err);
       })
-    })
-      response.send("okk");
+
+     // response.send("okk");
       // mongoose.model("orders").populate(order,{path:"joined"},function(err,joined){
       //   var joinedarr=[];
       //   joined[0].forEach(function (joined) {
