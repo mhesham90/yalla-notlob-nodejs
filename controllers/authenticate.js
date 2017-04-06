@@ -116,7 +116,7 @@ router.post("/login",postRequestMiddleware,function(request,response){
     // console.log(user[0]);
     // var userstr=user[0]._id
 
-      jwt.sign(user[0].email,APP_SECRET,{algorithm:"HS256"},function(err,token){
+      jwt.sign({id:user[0]._id,email:user[0].email},APP_SECRET,{algorithm:"HS256"},function(err,token){
         // request.accesstoken=token;
         // console.log(token);
         response.json(token);
@@ -140,7 +140,7 @@ router.post("/login",postRequestMiddleware,function(request,response){
   }
   })
 
-})
+});
 
 
 
