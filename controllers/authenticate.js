@@ -109,10 +109,16 @@ router.post("/login",postRequestMiddleware,function(request,response){
          //check accessToken
    bcrypt.compare(request.body.password, user[0].password, function(err, res) {
     if(res==true){
+
+    //  response.json({success:true,id:user[0]._id})
+    //  response.redirect("/home")
+
+
       jwt.sign(user,APP_SECRET,{algorithm:"HS256"},function(err,token){
         response.json({token:token,success:true});
       });
       // response.json({success:true})
+
     }
 });
 

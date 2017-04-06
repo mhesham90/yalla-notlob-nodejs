@@ -7,6 +7,8 @@ var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
 var mongodb_connection_string = 'mongodb://127.0.0.1:27017/' + "yalla_notlob";
 //load Express Module
 var express = require('express');
+var jwt=require("jsonwebtoken");
+
 var fs = require('fs');
 
 //socket io
@@ -14,8 +16,10 @@ var expressServer=express();
 
 var http=require('http');
 var httpSERVER=http.createServer(expressServer);
- io=require('socket.io')(httpSERVER);
-
+io=require('socket.io')(httpSERVER);
+ioLoggedClients=[];
+ioUnloggedClients=[];
+const APP_SECRET="LINA";
 
 
 //connect to mongoose
@@ -36,6 +40,33 @@ fs.readdirSync(__dirname+"/models").forEach(function (file) {
 
 var authRouter = require("./controllers/authenticate");
 expressServer.use("/authenticate",authRouter);
+
+
+////token middleware
+
+expressServer.use(function (request,response,next) {
+   // if(request.originalUrl!=='/authenticate/login' && request.originalUrl!=='/authenticate/register'){
+        var token =request.params.token;
+        if(token!== undefined) {
+            jwt.verify(token, APP_SECRET, function (err, decoded) {
+                if (err) {
+                    console.log("error");
+                    response.send(err);
+                } else {
+                    request.token=decoded;
+                    next();
+                }
+            });
+        }
+        else{
+            response.send("token does not exit")
+        }
+
+    // }
+    // else {
+    //     next();
+    // }
+});
 
 
 var userRouter = require("./controllers/user");

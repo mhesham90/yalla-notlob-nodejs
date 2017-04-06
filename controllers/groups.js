@@ -40,17 +40,17 @@ router.get("/:id",function(request,response){
             }
         })
     }
-    else {
-        mongoose.model("groups").find({_id:id},{},function(err,groups){
-            if(!err){
-                response.status(200);
-                response.json(groups);
-            }else{
-                response.status(404);
-                response.send("Error");
-            }
-        })
-    }
+    // else {
+    //     mongoose.model("groups").find({_id:id},{},function(err,groups){
+    //         if(!err){
+    //             response.status(200);
+    //             response.json(groups);
+    //         }else{
+    //             response.status(404);
+    //             response.send("Error");
+    //         }
+    //     })
+    // }
 })
 
 
@@ -84,8 +84,8 @@ router.delete("/:id",function(request,response){
 
 //update group
 
-router.put('/:id',postRequestMiddleware,function (request,response) {
-    var id =request.params.id;
+router.put('/',postRequestMiddleware,function (request,response) {
+    var id =request.body.id;
 
     mongoose.model("groups").update({_id:id},{$set:request.body},function(err,groups){
         if(!err){
