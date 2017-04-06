@@ -2,10 +2,14 @@ var express = require('express');
 var router = express.Router();
 var bodyParser=require("body-parser");
 var bcrypt=require("bcrypt");
-var postRequestMiddleware=bodyParser.urlencoded({extended:false});
+// var postRequestMiddleware=bodyParser.json();
+var postRequestMiddleware=bodyParser.urlencoded({extended:true});
+var jwt=require("jsonwebtoken");
 var multer=require("multer");
 var mongoose = require("mongoose");
- var validator=require('validator');
+var validator=require('validator');
+var jwt=require("jsonwebtoken");
+const APP_SECRET="@#$@#%!@#!@#";
 
 var uploadFileMiddleware=multer({dest:__dirname+"/../public",
 fileFilter:function(request,file,cb){
@@ -21,9 +25,10 @@ fileFilter:function(request,file,cb){
 
 router.use(function(request,response,next){
     // Set Origin to allow other domains to send request
-    response.setHeader("Access-Control-Allow-Origin","*");
+    response.header("Access-Control-Allow-Origin","*");
+    response.header("Access-Control-Allow-Headers","X-Requested-With, Content-Type");
     // allow four HTTP method
-    response.setHeader("Access-Control-Allow-Methods","GET,POST,PUT,DELETE");
+    response.header("Access-Control-Allow-Methods","GET,POST,PUT,DELETE");
 
     next();
 });
@@ -44,7 +49,9 @@ router.post("/register",postRequestMiddleware,function(request,response){
 
     //access token
     var errors=[];
-    if(validator.isEmpty(request.body.email) || validator.isEmpty(request.body.username) || validator.isEmpty(request.body.password)){
+    //aname
+    // console.log(request.body);
+    if(validator.isEmpty(request.body.email) || validator.isEmpty(request.body.name) || validator.isEmpty(request.body.username) || validator.isEmpty(request.body.password)){
       errors.push("empty");
     }
     if(!validator.isEmail(request.body.email)){
@@ -58,50 +65,60 @@ router.post("/register",postRequestMiddleware,function(request,response){
     else{
 
       var mail=validator.escape(request.body.email);
+      var name=validator.escape(request.body.name);
       var username=validator.escape(request.body.username);
       var password=validator.escape(request.body.password);
+
+      //  var mail=request.body.email;
+      //  var username=request.body.username;
+      //  var password=request.body.password;
 
       var salt=bcrypt.genSaltSync();
       var hashedPassword=bcrypt.hashSync(password,salt);
 
-    var user=new UserModel({email:mail,username:username,password:hashedPassword});
-    user.save(function(err){
-      if(!err){
-        console.log("success");
-        //send token
-          response.json({success:true});
-    //   response.json(at);
-        // response.redirect("/home");
-      }else{
-         response.json({success:false});
-      }
-    })
+mongoose.model("users").find({email:request.body.email},{},function(err,user){
+  if(user[0]==undefined){
+      var user=new UserModel({email:mail,name:name,username:username,password:hashedPassword});
 
+      user.save(function(err){
+        if(!err){
+
+        }else{
+           response.json({success:false});
+        }
+      })
   }
+
+  else {
+    response.json({success:false,msg:"user already exists"});
+  }
+})
+
 // response.send("ay7aga");
 //,avatar:request.file.filename
 //uploadFileMiddleware.single("avatar"),
-
+}
     //insert into db
     //response.json
 });
 
-//gwa el find
-//mongoose.model("users").populate(user,{path:"friends"},function(err,result))
-
-
-
 router.post("/login",postRequestMiddleware,function(request,response){
 
-  mongoose.model("users").find({username:request.body.username},{_id:true,username:true,password:true},function(err,user){
+  mongoose.model("users").find({email:request.body.email},{},function(err,user){
        if(user[0]!=undefined){
          //check accessToken
 
-        //  if(bcrypt.compareSync(request.body.password, user.password)){
    bcrypt.compare(request.body.password, user[0].password, function(err, res) {
     if(res==true){
-      response.json({success:true,id:user[0]._id})
+
+    //  response.json({success:true,id:user[0]._id})
     //  response.redirect("/home")
+
+
+      jwt.sign(user,APP_SECRET,{algorithm:"HS256"},function(err,token){
+        response.json(token);
+      });
+      // response.json({success:true})
 
     }
     // else{
@@ -121,6 +138,10 @@ router.post("/login",postRequestMiddleware,function(request,response){
 
 })
 
+
+router.post("/loginwfb",postRequestMiddleware,function(request,response){
+
+})
 
 
 //

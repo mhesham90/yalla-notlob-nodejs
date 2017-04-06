@@ -1,8 +1,10 @@
 //set server port && ip address
 var server_port = process.env.OPENSHIFT_NODEJS_PORT || 8090;
 var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
+// '172.16.5.117';
+// 127.0.0.1
 //set mongodb connection
-var mongodb_connection_string = 'mongodb://127.0.0.1:27017/' + "ordersystem";
+var mongodb_connection_string = 'mongodb://127.0.0.1:27017/' + "yalla_notlob";
 //load Express Module
 var express = require('express');
 var jwt=require("jsonwebtoken");
@@ -39,6 +41,7 @@ fs.readdirSync(__dirname+"/models").forEach(function (file) {
 var authRouter = require("./controllers/authenticate");
 expressServer.use("/authenticate",authRouter);
 
+
 ////token middleware
 
 expressServer.use(function (request,response,next) {
@@ -64,6 +67,7 @@ expressServer.use(function (request,response,next) {
     //     next();
     // }
 });
+
 
 var userRouter = require("./controllers/user");
 expressServer.use("/user",userRouter);
