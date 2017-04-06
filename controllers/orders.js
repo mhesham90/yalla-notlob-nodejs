@@ -23,10 +23,12 @@ router.get("/allorders",function(request,response){
   //
   //     var invitedgroups=[];
   //     var invitedfriends=[];
-      mongoose.model('orders').find({owner:"58e625fb3d5f6b811ff88b81"})
-      .populate(' joined invitedfriends invitedgroups ',['username,name']).exec(function (err,orders) {
+  mongoose.model("users").find({email:request.token},function(err,user){
+      mongoose.model('orders').find({owner:user[0]._id})
+      .populate('joined',['username,name']).exec(function (err,orders) {
         console.log(orders[0])
       })
+    })
       response.send("okk");
       // mongoose.model("orders").populate(order,{path:"joined"},function(err,joined){
       //   var joinedarr=[];
@@ -135,7 +137,7 @@ router.delete("/cancel",postRequestMiddleware,function(request,response){
     mongoose.model("users").find({email:request.token},{_id:true},function(err,user){
 
 
-    mongoose.model("orders").remove({owner:user[0]._id},function(err,order){
+    mongoose.model("orders").remove({owner:user[0]._id,id:request.body.id},function(err,order){
       if (!err) { response.json("success");}
       else{
         response.send("Error");
@@ -154,15 +156,20 @@ if(!err){response.json({success:true})}
 })
 })
 
-router.delete("/removemeal",postRequestMiddleware,function(request,response){
-  mongoose.model("orders").update({})
-})
+// router.delete("/removemeal",postRequestMiddleware,function(request,response){
+//   mongoose.model("users").find({email:request.email},{_id:true},function(err,user){
+//   mongoose.model("orders").update({owner:user[0]._id},{$pull:{ meals:}
+//     ,function(err,order){
+//
+//   })
+// })
+// })
 
 router.post("/addmeal",postRequestMiddleware,function(request,response){
   mongoose.model("users").find({email:request.token},{_id:true,username:true},function(err,user){
   mongoose.model("orders").update(
     {_id:"58e63a263f8b2f21c99631e2"},{
-    $push:{ meals:{person:user[0].username,personid:user[0]._id,
+    $addToSet:{ meals:{person:user[0].username,personid:user[0]._id,
     item:request.body.item,price:request.body.price,amount:request.body.amount,comment:request.body.comment} },
      $pull:{ invitedfriends:user[0]._id},
      $push:{ joined:user[0]._id }

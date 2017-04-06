@@ -122,11 +122,11 @@ router.post("/login",postRequestMiddleware,function(request,response){
         response.json(token);
 
       // response.json({success:true})
-
-    }else{
-    	response.json({msg:'wrong email or password',success:false});
-    }
-    else{
+})
+    // }else{
+    // 	response.json({msg:'wrong email or password',success:false});
+    // }
+  }else{
       response.json({msg:"wrong password"});
     }
 });

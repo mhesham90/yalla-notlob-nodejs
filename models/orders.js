@@ -13,6 +13,7 @@ var orders = new Schema({
     joined : [{type:Schema.Types.ObjectId, ref:"users"}],
     menuimage:String,
     meals: [{
+          id:Schema.Types.ObjectId,
           person:String,
           personid:{type:Schema.Types.ObjectId, ref:"users"},
           item:String,

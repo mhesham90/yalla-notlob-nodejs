@@ -1,8 +1,9 @@
 var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
+var uniqueValidator = require('mongoose-unique-validator');
 
 var users = new Schema({
-    email : String,
+    email : {type: String, unique: true },
     username: String,
     name: String,
     password: String,
@@ -12,4 +13,5 @@ var users = new Schema({
     notifications : [{type:Schema.Types.ObjectId, ref:"notifications"}]
 });
 
+users.plugin(uniqueValidator);
 mongoose.model("users",users);

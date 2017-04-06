@@ -70,14 +70,14 @@ router.post("/addfriend",postRequestMiddleware,function(request,response){
 
 router.post("/unfriend",postRequestMiddleware,function(request,response){
 
-  mongoose.model("users").find({username:request.body.username},{_id:true},function(err,friend){
-    mongoose.model("users").update({email:request.token},{$pull:{friends:friend[0]._id}},function(err,user){
+  // mongoose.model("users").find({username:request.body.username},{_id:true},function(err,friend){
+    mongoose.model("users").update({email:request.token},{$pull:{friends:request.body.id}},function(err,user){
       if(!err){
         response.json({success:true});
       }
       else{  response.json({success:false}); }
     })
-  })
+  // })
 
 })
 

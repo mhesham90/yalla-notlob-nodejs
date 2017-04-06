@@ -47,7 +47,7 @@ expressServer.use("/authenticate",authRouter);
  expressServer.use(function (request,response,next) {
     // if(request.originalUrl!=='/authenticate/login' && request.originalUrl!=='/authenticate/register'){
         //  var token =request.headers['x-access-token'];
-         var token = "eyJhbGciOiJIUzI1NiJ9.YWxpQGdtYWlsLmNvbQ.XTJ68-De_ihCAPtnW56Kjo0HSjYU9GF3wHJ5J2udUJs"
+         var token = "eyJhbGciOiJIUzI1NiJ9.a29rb0BnbWFpbC5jb20.qNnXo4y96EY90JsFdoqWEcijdSSaDhDEOt2iSA14rhU"
         if(token!== undefined) {
             jwt.verify(token, APP_SECRET, function (err, decoded) {
                 if (err) {
