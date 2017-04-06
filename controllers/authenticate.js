@@ -102,6 +102,7 @@ router.post("/login",postRequestMiddleware,function(request,response){
     if(res==true){
       response.json({success:true,id:user[0]._id})
     //  response.redirect("/home")
+
     }
     // else{
     //   request.flash("message","Invalid ");
