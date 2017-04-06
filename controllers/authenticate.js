@@ -114,11 +114,13 @@ router.post("/login",postRequestMiddleware,function(request,response){
     //  response.redirect("/home")
 
 
-      jwt.sign(user,APP_SECRET,{algorithm:"HS256"},function(err,token){
+      var token = jwt.sign(user[0],APP_SECRET,{algorithm:"HS256"},function(err,token){
         response.json({token:token,success:true});
       });
       // response.json({success:true})
 
+    }else{
+    	response.json({msg:'wrong email or password',success:false});
     }
 });
 
@@ -127,7 +129,7 @@ router.post("/login",postRequestMiddleware,function(request,response){
 
   else{
     // request.flash("message","Invalid email or password");
-    response.json({msg:"no such user"});
+    response.json({msg:'wrong email or password',success:false});
   }
   })
 
