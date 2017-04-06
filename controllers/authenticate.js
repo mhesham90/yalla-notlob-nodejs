@@ -2,8 +2,8 @@ var express = require('express');
 var router = express.Router();
 var bodyParser=require("body-parser");
 var bcrypt=require("bcrypt");
-// var postRequestMiddleware=bodyParser.json({limit: '20mb'});
- var postRequestMiddleware=bodyParser.urlencoded({extended:true});
+var postRequestMiddleware=bodyParser.json({limit: '20mb'});
+ // var postRequestMiddleware=bodyParser.urlencoded({extended:true});
 var jwt=require("jsonwebtoken");
 var multer=require("multer");
 var mongoose = require("mongoose");
@@ -105,39 +105,35 @@ mongoose.model("users").find({email:request.body.email},{},function(err,user){
 router.post("/login",postRequestMiddleware,function(request,response){
 
   mongoose.model("users").find({email:request.body.email},{},function(err,user){
-       if(user[0]!=undefined){
+    if(user[0]!=undefined){
          //check accessToken
-   bcrypt.compare(request.body.password, user[0].password, function(err, res) {
-    if(res==true){
+	   	bcrypt.compare(request.body.password, user[0].password, function(err, res) {
+		    if(res==true){
 
-    //  response.json({success:true,id:user[0]._id})
-    //  response.redirect("/home")
+		    //  response.json({success:true,id:user[0]._id})
+		    //  response.redirect("/home")
 
-    // console.log(user[0]);
-    // var userstr=user[0]._id
+		    // console.log(user[0]);
+		    // var userstr=user[0]._id
+		    	delete user[0].password;
+				jwt.sign(user[0],APP_SECRET,{algorithm:"HS256"},function(err,token){
+		        // request.accesstoken=token;
+		        // console.log(token);
+		        // response.json(token);
+		      		response.json({token:token, success:true})
+		      	})
+		    // }else{
+		    // 	response.json({msg:'wrong email or password',success:false});
+		    // }
+		  	}else{
+		      response.json({msg:'wrong email or password',success:false});
+		    }
+		});
 
-      jwt.sign({id:user[0]._id,email:user[0].email},APP_SECRET,{algorithm:"HS256"},function(err,token){
-        // request.accesstoken=token;
-        // console.log(token);
-        response.json(token);
-
-      // response.json({success:true})
-})
-    // }else{
-    // 	response.json({msg:'wrong email or password',success:false});
-    // }
-  }else{
-      response.json({msg:"wrong password"});
-    }
-});
-
-       }
-
-
-  else{
-    // request.flash("message","Invalid email or password");
-    response.json({msg:'wrong email or password',success:false});
-  }
+    }else{
+    	// request.flash("message","Invalid email or password");
+    	response.json({msg:'wrong email or password',success:false});
+  	}
   })
 
 });
