@@ -139,16 +139,15 @@ router.post("/add",postRequestMiddleware,function(request,response){
 //cancel order
 router.delete("/cancel",postRequestMiddleware,function(request,response){
 
-    mongoose.model("users").find({email:request.token.email},{_id:true},function(err,user){
 
 
-    mongoose.model("orders").remove({owner:user[0]._id,id:request.body.id},function(err,order){
+    mongoose.model("orders").remove({owner:request.token.id,id:request.body.id},function(err,order){
       if (!err) { response.json("success");}
       else{
         response.send("Error");
       }
     });
-})
+
 
 });
 
@@ -193,4 +192,14 @@ if(!err){
 
 })
 
+router.post("/checkout",postRequestMiddleware,function(request,response){
+    mongoose.model("orders").update({owner:request.token.id,_id:request.body.id},
+      {$set:{status:"finished"}},function(err,order){
+        if(!err){
+          response.json({success:true});
+        }
+      })
+})
+
 module.exports = router;
++
