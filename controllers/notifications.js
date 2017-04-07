@@ -5,12 +5,25 @@ var postRequestMiddleware=bodyParser.json;
 var mongoose = require("mongoose");
 
 function notifMsg(notification) {
+    console.log(notification);
+
     var msg =notification.message;
+    console.log(msg)
     msg =msg.split(':');
-    msg.indexOf('[u]')!== -1?msg[msg.indexOf('[u]')]=notification.userId:null;
-    msg.indexOf('[o]')!== -1 ?msg[msg.indexOf('[o]')]=notification.orderId:null;
-    msg.indexOf('[g]')!== -1?msg[msg.indexOf('[g]')]=notification.groupId:null;
-    return {msg:msg,id:notification._id}
+    if(msg.indexOf('[u]')!== -1){
+        notification.userId['type']="user";
+        msg[msg.indexOf('[u]')]=notification.userId
+    }
+    if(msg.indexOf('[o]')!== -1){
+        notification.orderId['type']="order";
+        msg[msg.indexOf('[o]')]=notification.orderId
+    }
+    if(msg.indexOf('[g]')!== -1){
+        notification.groupId['type']="group";
+        msg[msg.indexOf('[g]')]=notification.groupId
+    }
+
+    return {msg:msg,notif_id:notification._id}
 }
 
 var router = express.Router();
@@ -35,7 +48,9 @@ io.on("connection",function (client) {
 
 router.get('/',function (request,response) {
     //get user id
-    var id='58e3a68f82e295716c68bf34';
+    //var id='58e75d0ef48126268d2dc6c6';
+    var id =request.token._id;
+
     mongoose.model('notifications').find({to:id,seen:false}).populate(' userId groupId orderId ',['username','name']).exec(function (err,notif) {
         notif.forEach(function (notification) {
 
