@@ -14,7 +14,7 @@ router.use(function(request,response,next){
 });
 //list groups
 router.get("/",function(request,response){
-    var id =request.token.id;
+    var id =request.token._id;
     var result ={};
 
 
