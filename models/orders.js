@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 var orders = new Schema({
     name : String,
     resturant:String,
-    for:String,
+    forr:String,
     owner : {type:Schema.Types.ObjectId, ref:"users"},
     status : String,
     createdAt: {type:Date,default:Date.now},
