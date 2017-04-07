@@ -45,16 +45,20 @@ expressServer.use("/authenticate",authRouter);
 ////token middleware
 
  expressServer.use(function (request,response,next) {
-          // var token =request.headers['x-access-token'];
-        var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU4ZTY4YjJlZjNlMzE2NDEwZjYzMThmNSIsImVtYWlsIjoia29rb0BnbWFpbC5jb20iLCJpYXQiOjE0OTE1MTIxMDN9.2_2mVXidW6m_okg0wYg4PPEezM5oQ5iKugNtH4bhcK8"
+ 	response.header("Access-Control-Allow-Origin","*");
+    response.header("Access-Control-Allow-Headers","x_access_token, X-Requested-With, Content-Type");
+    // allow four HTTP method
+    response.header("Access-Control-Allow-Methods","GET,POST,PUT,DELETE");
+          var token =request.headers['x_access_token'];
+        // var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU4ZTY4YjJlZjNlMzE2NDEwZjYzMThmNSIsImVtYWlsIjoia29rb0BnbWFpbC5jb20iLCJpYXQiOjE0OTE1MTIxMDN9.2_2mVXidW6m_okg0wYg4PPEezM5oQ5iKugNtH4bhcK8"
+       
         if(token!== undefined) {
             jwt.verify(token, APP_SECRET, function (err, decoded) {
                 if (err) {
                     console.log("error");
                     response.send(err);
                 } else {
-
-                    request.token=decoded;
+                	request.token=decoded._doc;
                     next();
                 }
             });
