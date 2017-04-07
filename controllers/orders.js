@@ -1,7 +1,9 @@
 var express = require('express');
 var router = express.Router();
 var bodyParser=require("body-parser");
-var postRequestMiddleware=bodyParser.urlencoded({extended:false});
+var postRequestMiddleware=bodyParser.json({limit: '20mb'});
+
+// var postRequestMiddleware=bodyParser.urlencoded({extended:false});
 var mongoose = require("mongoose");
 
 router.use(function(request,response,next){
@@ -164,7 +166,8 @@ router.delete("/removemeal",postRequestMiddleware,function(request,response){
   // mongoose.model("users").find({email:request.email},{_id:true},function(err,user){
   mongoose.model("orders").update({_id:request.body.orderid,owner:request.token.id},{$pull:{ meals:{ _id:request.body.mealid } }}
     ,function(err,order){
-
+if(!err){response.json({success:true})}
+else{response.json({success:false})}
   })
 })
 // })
@@ -202,4 +205,3 @@ router.post("/checkout",postRequestMiddleware,function(request,response){
 })
 
 module.exports = router;
-+
