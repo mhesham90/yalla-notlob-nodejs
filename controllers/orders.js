@@ -3,8 +3,8 @@ var router = express.Router();
 var bodyParser=require("body-parser");
 
 
-var postRequestMiddleware=bodyParser.json({limit: '20mb'});
-
+// var postRequestMiddleware=bodyParser.json({limit: '20mb'});
+var postRequestMiddleware=bodyParser.urlencoded({extended:true});
 var mongoose = require("mongoose");
 
 router.use(function(request,response,next){
@@ -18,9 +18,12 @@ router.use(function(request,response,next){
 //list orders
 router.get("/allorders",function(request,response){
 console.log("token",request.token._id)
-      mongoose.model('orders').find({owner:request.token._id})
+      mongoose.model('orders').find({$or:[{owner:request.token._id},{joined:request.token._id},
+        {invitedfriends:request.token._id}]})
       .populate('joined invitedfriends invitedgroups',['name','username']).exec(function (err,orders) {
           if(!err) {
+            var type;
+            // if(request.token._id )
             var orderslist=[];
 
          orders.forEach(function (order) {
@@ -30,6 +33,7 @@ console.log("token",request.token._id)
            var joinedarr=[];
            var invitedgroup=[];
            var invitedfriend=[];
+
            var invited=order.invitedfriends.length+order.invitedgroups.length;
           joined.forEach(function(joined){
           joinedarr.push(joined.name);
@@ -64,6 +68,7 @@ console.log("token",request.token._id)
                orderslist.push(orderobj);
 
  })
+
 }
 response.json(orderslist);
   })
@@ -179,7 +184,7 @@ if(!err){response.json({success:true})}
 router.delete("/removemeal",postRequestMiddleware,function(request,response){
   // mongoose.model("users").find({email:request.email},{_id:true},function(err,user){
 console.log("req body",request.body,"owner:",request.token._id)
-  mongoose.model("orders").update({_id:request.body.orderid,owner:request.token.id},{$pull:{ meals:{ _id:request.body.id } }}
+  mongoose.model("orders").update({_id:request.body.orderid,owner:request.token.id},{$pull:{ meals: {id:request.body.id} }}
     ,function(err,order){
 
 if(!err){response.json({success:true})}
