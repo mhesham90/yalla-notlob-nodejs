@@ -1,12 +1,10 @@
 var express = require('express');
 var router = express.Router();
 var bodyParser=require("body-parser");
-var notifications = require("./notifications");
 
 
-
-var postRequestMiddleware=bodyParser.json({limit: '20mb'});
-
+// var postRequestMiddleware=bodyParser.json({limit: '20mb'});
+var postRequestMiddleware=bodyParser.urlencoded({extended:true});
 var mongoose = require("mongoose");
 
 router.use(function(request,response,next){
@@ -20,9 +18,12 @@ router.use(function(request,response,next){
 //list orders
 router.get("/allorders",function(request,response){
 console.log("token",request.token._id)
-      mongoose.model('orders').find({owner:request.token._id})
+      mongoose.model('orders').find({$or:[{owner:request.token._id},{joined:request.token._id},
+        {invitedfriends:request.token._id}]})
       .populate('joined invitedfriends invitedgroups',['name','username']).exec(function (err,orders) {
           if(!err) {
+            var type;
+            // if(request.token._id )
             var orderslist=[];
 
          orders.forEach(function (order) {
@@ -32,6 +33,7 @@ console.log("token",request.token._id)
            var joinedarr=[];
            var invitedgroup=[];
            var invitedfriend=[];
+
            var invited=order.invitedfriends.length+order.invitedgroups.length;
           joined.forEach(function(joined){
           joinedarr.push(joined.name);
@@ -66,8 +68,9 @@ console.log("token",request.token._id)
                orderslist.push(orderobj);
 
  })
+
 }
-response.json(orderslist);
+response.json({orders:orderslist,});
   })
 
   })
@@ -104,7 +107,6 @@ router.post("/add",postRequestMiddleware,function(request,response){
 
           order.save(function(err){
           if(!err){
-              notifications.sendnotif([4,5],{order:order,user:request.token._id});
             response.json("success");
 
           }else{
@@ -120,7 +122,6 @@ router.post("/add",postRequestMiddleware,function(request,response){
         owner:user[0]._id,checkedout:false,meals:[],invitedgroups:groups,joined:[]});
         order.save(function(err){
         if(!err){
-            notifications.sendnotif([9,5],{order:order,user:request.token._id});
           response.json("success");
         }else{
           response.json("Error");
@@ -153,13 +154,9 @@ router.delete("/cancel",postRequestMiddleware,function(request,response){
     mongoose.model("users").find({email:request.token.email},{_id:true},function(err,user){
 
  //
-   //mongoose.model("orders").remove({owner:user[0]._id,_id:request.body.id},function(err,order){
-   mongoose.model("orders").findOneAndRemove({owner:user[0]._id,_id:request.body.id},function(err,order){
-      if (!err) {
-          notifications.sendnotif([7],{order:order});
-          response.json("success");
-          console.log("success")
-      }
+   mongoose.model("orders").remove({owner:user[0]._id,_id:request.body.id},function(err,order){
+      if (!err) { response.json("success");
+console.log("success")}
 
       else{
         response.send("Error");
@@ -187,7 +184,7 @@ if(!err){response.json({success:true})}
 router.delete("/removemeal",postRequestMiddleware,function(request,response){
   // mongoose.model("users").find({email:request.email},{_id:true},function(err,user){
 console.log("req body",request.body,"owner:",request.token._id)
-  mongoose.model("orders").update({_id:request.body.orderid,owner:request.token.id},{$pull:{ meals:{ _id:request.body.id } }}
+  mongoose.model("orders").update({_id:request.body.orderid,owner:request.token.id},{$pull:{ meals: {id:request.body.id} }}
     ,function(err,order){
 
 if(!err){response.json({success:true})}
@@ -223,12 +220,10 @@ if(!err){
 })
 
 router.post("/checkout",postRequestMiddleware,function(request,response){
-    mongoose.model("orders").findOneAndUpdate({owner:request.token.id,_id:request.body.id},
+    mongoose.model("orders").update({owner:request.token.id,_id:request.body.id},
       {$set:{status:"finished"}},function(err,order){
         if(!err){
-            notifications.sendnotif([6],{order:order});
-            response.json({success:true});
-
+          response.json({success:true});
         }
       })
 })
