@@ -43,15 +43,19 @@ const msgs=['[u]: is now friend with :[u]',
 ];
 
 var addnotif =function (types,parts) {
+    console.log('add',types,parts);
     var notification={seen:false};
     var friends;
-    if(parts.user){
+    if(parts.user!==undefined){
+        console.log('userr')
         mongoose.model('users').find({_id:parts.user},function (err,user) {
             if(!err) friends=user.friends;
             else console.log(err);
         });
     }
-    for(var type in types){
+    types.forEach(function (type) {
+
+        console.log(type);
         switch (type){
             case 0 :{
                  //deprecated
@@ -71,49 +75,57 @@ var addnotif =function (types,parts) {
                 notification.to=parts.group.members;
                 notification.groupId=parts.group._id;
                 notification.message=msgs[2];
-                break;
             }
+                break;
+
             case 3 :{
                 notification.to=friends;
                 notification.userId=parts.user;
                 notification.groupId=parts.group._id;
                 notification.message=msgs[3];
-                break;
             }
+                break;
+
             case 4 :{
 
                 notification.to=parts.order.invitedfriends;
                 notification.orderId=parts.order._id;
                 notification.userId=parts.user._id;
                 notification.message=msgs[4];
-                break;
             }
+                break;
+
             case 5 :{
                 notification.to=friends;
                 notification.orderId=parts.order._id;
                 notification.userId=parts.user._id;
                 notification.message=msgs[5];
-                break;
             }
+                break;
+
             case 6 :{
                 notification.to=parts.order.joined;
                 notification.orderId=parts.order._id;
                 notification.message=msgs[6];
 
-                break;
             }
+                break;
+
             case 7 :{
                 notification.to=parts.order.joined;
                 notification.orderId=parts.order._id;
                 notification.message=msgs[7];
-                break;
             }
+                break;
+
             case 8 :{
+                console.log('case 8')
                 notification.to=parts.userId;
                 notification.userId=parts.user;
                 notification.message=msgs[8];
-                break;
             }
+                break;
+
             case 9:{
                 notification.to=[];
                 for (var group in parts.order.invitedgroups){
@@ -125,10 +137,13 @@ var addnotif =function (types,parts) {
                 }
                 notification.orderId=parts.order._id;
                 notification.groupId=parts.group._id;
-                break;
             }
+                break;
+
+            default:break;
 
         }
+        console.log('after',notification);
 
         var notifModel=mongoose.model("notifications");
         var notif=new notifModel(notification);
@@ -142,7 +157,7 @@ var addnotif =function (types,parts) {
         });
 
 
-    }
+    })
 
 }
 
@@ -151,27 +166,33 @@ var router = express.Router();
 
 //send notification
 
+router['sendnotif']=function (types,parts) {
+    addnotif(types,parts);
+    console.log('send notif',types,parts);
+    for (var clientid in ioLoggedClients) {
+        if (notification.to.includes(clientid)) {
+            ioLoggedClients[clientid].emit('newNotif');
+        }
+    }
+}
+
 io.on("connection",function (client) {
     ioUnloggedClients.push(client);
     client.on('login',function (id) {
         ioLoggedClients[id]=client;
         ioUnloggedClients.splice(ioUnloggedClients.indexOf(client),1);
+
     })
-    router.sendnotif=function (types,parts) {
-        addnotif(types,parts);
-        for (var clientid in ioLoggedClients) {
-            if (notification.to.includes(clientid)) {
-                ioLoggedClients[clientid].emit('newNotif');
-            }
-        }
-    }
-})
+
+});
+
 
 
 
 router.get('/',function (request,response) {
     //get user id
     //var id='58e75d0ef48126268d2dc6c6';
+
     var id =request.token._id;
 
     mongoose.model('notifications').find({to:id,seen:false}).populate(' userId groupId orderId usersId',['username','name']).exec(function (err,notif) {
