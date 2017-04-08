@@ -3,8 +3,8 @@ var router = express.Router();
 var bodyParser=require("body-parser");
 
 
-// var postRequestMiddleware=bodyParser.json({limit: '20mb'});
-var postRequestMiddleware=bodyParser.urlencoded({extended:true});
+ var postRequestMiddleware=bodyParser.json({limit: '20mb'});
+//var postRequestMiddleware=bodyParser.urlencoded({extended:true});
 var mongoose = require("mongoose");
 
 router.use(function(request,response,next){
