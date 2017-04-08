@@ -67,20 +67,35 @@ router.post("/addfriend",postRequestMiddleware,function(request,response){
 
       var flag=0;
       mongoose.model("users").find({email:request.token.email},function(err,loggeduser){
-        if(loggeduser[0]._id!=user[0]._id){
+        var loggedid= loggeduser[0]._id+"";
+        var friendid=user[0]._id+"";
+        // loggedid="58e888dec73cab624c7cb9af";
+        // ObjectId("58e634304045c81e8f22f5b7")
+        // friendid="58e634304045c81e8f22f5b7";
+
+         console.log("friendd"+friendid);
+         console.log("logeedd"+loggedid);
+        if( loggedid != friendid){
+// console.log("ssss")
           var userfriends=loggeduser[0].friends;
           userfriends.forEach(function (friend) {
-            if(user[0]._id==friend){ flag=1; }
+            if(friendid==friend){ flag=1; }
 
           })
-          if(flag==0){
+          if(flag == 0){
             mongoose.model("users").update({email:request.token.email},{ $push:{friends: user[0]._id} },function(err,i){
               response.json({success:true});
           })
         }
+        else{
+          response.json({error:"this is already your friend!"});
+        }
 
 
       }
+      else{
+      response.json({error:"you can't add yourself!"});
+    }
 
 
         //  response.send(user[0]._id);
