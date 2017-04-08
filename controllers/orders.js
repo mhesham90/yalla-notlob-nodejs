@@ -22,6 +22,8 @@ console.log("token",request.token._id)
         {invitedfriends:request.token._id}]})
       .populate('joined invitedfriends invitedgroups',['name','username']).exec(function (err,orders) {
           if(!err) {
+            var type;
+            // if(request.token._id )
             var orderslist=[];
 
          orders.forEach(function (order) {
@@ -31,6 +33,7 @@ console.log("token",request.token._id)
            var joinedarr=[];
            var invitedgroup=[];
            var invitedfriend=[];
+
            var invited=order.invitedfriends.length+order.invitedgroups.length;
           joined.forEach(function(joined){
           joinedarr.push(joined.name);
@@ -65,8 +68,9 @@ console.log("token",request.token._id)
                orderslist.push(orderobj);
 
  })
+
 }
-response.json(orderslist);
+response.json({orders:orderslist,});
   })
 
   })

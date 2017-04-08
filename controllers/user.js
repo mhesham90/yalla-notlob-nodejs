@@ -3,6 +3,8 @@ var router = express.Router();
 var bodyParser=require("body-parser");
 var bcrypt=require("bcrypt");
 var postRequestMiddleware=bodyParser.json({limit: '20mb'});
+var notifications = require("./notifications");
+
 
 // var postRequestMiddleware=bodyParser.urlencoded({extended:false});
 var mongoose = require("mongoose");
@@ -62,6 +64,7 @@ router.post("/addfriend",postRequestMiddleware,function(request,response){
      }
 
     else{
+
       var flag=0;
       mongoose.model("users").find({email:request.token.email},function(err,loggeduser){
         if(loggeduser[0]._id!=user[0]._id){
@@ -78,7 +81,6 @@ router.post("/addfriend",postRequestMiddleware,function(request,response){
 
 
       }
-
 
 
         //  response.send(user[0]._id);

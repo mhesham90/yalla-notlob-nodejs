@@ -8,7 +8,8 @@ var notifications = new Schema({
     //type: {type: Schema.ObjectId, ref:'notif_type'},
      userId:{type: Schema.ObjectId, ref:'users'},
      groupId:{type: Schema.ObjectId, ref:'groups'},
-     orderId:{type: Schema.ObjectId, ref:'orders'}
+     orderId:{type: Schema.ObjectId, ref:'orders'},
+    usersId:[{type: Schema.ObjectId, ref:'users'}]
 
 });
 
