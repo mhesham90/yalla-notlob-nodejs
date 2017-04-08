@@ -88,19 +88,39 @@ router.delete("/:id",function(request,response){
 });
 
 //update group
-
-router.put('/',postRequestMiddleware,function (request,response) {
+router.post('/addMember',postRequestMiddleware,function (request,response) {
     var id =request.body.id;
-
-    mongoose.model("groups").findOneAndUpdate({_id:id},{$push:{members:{$each:request.body.members}}},{},function(err,group){
-        if(!err){
-            notifications.sendnotif([2],{group:group,usersId:request.body.members})
-            response.status(200);
-            response.send("success ");
-        }else{
-            response.status(404);
-            response.send("Error");
+    mongoose.model("users").find({email:request.body.email},function(err,user){
+        if(user.length == 0){
+            response.json({success:false,error:"No such user"});
+        }
+        else{
+            mongoose.model("groups").update({_id:id},{$push:{members: user[0]._id}},function(err,groups){
+                if(!err){
+                    response.status(200);
+                    response.json({success: true});
+                }else{
+                    response.status(404);
+                    response.json({success: false,error:"No such user"});
+                }
+            })
         }
     })
+})
+router.post('/deleteMember',postRequestMiddleware,function (request,response) {
+    var id =request.body.id;
+    console.log(id, request.body.userid);
+    mongoose.model("groups").update({_id:request.body.id},{$pull:{members: request.body.userid}},function(err,groups){
+
+        if(!err){
+            // notifications.sendnotif([2],{group:group,usersId:request.body.members})
+            response.status(200);
+            response.json({success: true});
+        }else{
+            response.status(404);
+            response.json({success: false,error:"try again later"});
+        }
+    })
+   
 })
 module.exports = router;
