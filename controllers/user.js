@@ -54,16 +54,33 @@ router.get("/friendsactivity",function(request,response){
 })
 
 router.post("/addfriend",postRequestMiddleware,function(request,response){
-       
+
    mongoose.model("users").find({email:request.body.email},function(err,user){
 
      if(user==undefined){
        response.json({success:false,error:"No such user"});
      }
+
     else{
-      
-       mongoose.model("users").update({email:request.token.email},{ $push:{friends: user[0]._id} },function(err,i){
-         response.json({success:true});
+      var flag=0;
+      mongoose.model("users").find({email:request.token.email},function(err,loggeduser){
+        if(loggeduser[0]._id!=user[0]._id){
+          var userfriends=loggeduser[0].friends;
+          userfriends.forEach(function (friend) {
+            if(user[0]._id==friend){ flag=1; }
+
+          })
+          if(flag==0){
+            mongoose.model("users").update({email:request.token.email},{ $push:{friends: user[0]._id} },function(err,i){
+              response.json({success:true});
+          })
+        }
+
+
+      }
+
+
+
         //  response.send(user[0]._id);
        });
   //
