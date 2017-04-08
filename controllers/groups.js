@@ -3,6 +3,8 @@ var router = express.Router();
 var bodyParser=require("body-parser");
 var postRequestMiddleware=bodyParser.json({limit: '20mb'});
 var mongoose = require("mongoose");
+var notifications = require("./notifications");
+
 
 router.use(function(request,response,next){
     // Set Origin to allow other domains to send request
@@ -39,9 +41,23 @@ router.get("/",function(request,response){
         })
 })
 
+router.get('/:id',function(request,response){
+  var id =request.params.id;
+  mongoose.model("groups").find({_id:id}).populate("members owner",['uaername','avatar']).exec(function (err,group) {
+      if(!err){
+          response.status(200);
+          response.json(group[0]);
+      }else{
+          response.status(404);
+          response.send(err);
+      }
+  })
+})
+
 
 //add groups
 router.post("/",postRequestMiddleware,function(request,response){
+    console.log(request.body);
     var groupModel=mongoose.model("groups");
     var group = new groupModel(request.body);
     group.save(function (err) {
@@ -53,7 +69,10 @@ router.post("/",postRequestMiddleware,function(request,response){
             response.send("Error");
         }
         
-    })
+    });
+
+    notifications.sendnotif([1,3],{group:group,user:request.token._id})
+    console.log(group._id)
 });
 //cancel group
 router.delete("/:id",function(request,response){
@@ -73,8 +92,9 @@ router.delete("/:id",function(request,response){
 router.put('/',postRequestMiddleware,function (request,response) {
     var id =request.body.id;
 
-    mongoose.model("groups").update({_id:id},{$set:request.body},function(err,groups){
+    mongoose.model("groups").findOneAndUpdate({_id:id},{$push:{members:{$each:request.body.members}}},{},function(err,group){
         if(!err){
+            notifications.sendnotif([2],{group:group,usersId:request.body.members})
             response.status(200);
             response.send("success ");
         }else{

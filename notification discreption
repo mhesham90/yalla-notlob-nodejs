@@ -1,12 +1,12 @@
 notification message:
 
+0 '[u]: is now friend with :[u]',
+1 '[u]: added you to :[g]',
+2 '[u]: was added to :[g]: you are in',
+3 '[u]: created :[g]',
+4 '[u]: invitated to :[o]',
+5 '[u]: made order',
+6 'your :[o]: was sent',
+7 'your :[o]: was deleted',
+8 '[u]: added you as friend'
 
-[u]: added you to :[g]
-[u]: was added to :[g]: you are in
-[u]: created :[g]
-[u]: invitated to :[o]
-[u]: made order
-your :[o]: was sent
-your :[o]: was deleted
-[u]: added you as friend
-[u]: is now friend with :[u]
