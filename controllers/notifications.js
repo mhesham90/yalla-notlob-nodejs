@@ -30,7 +30,7 @@ var notifMsg= function (notification) {
     return {msg:msg,notif_id:notification._id}
 }
 
-const msgs=['[u]: is now friend with :[u]',
+const msgs=[//'[u]: is now friend with :[u]',
      '[u]: added you to :[g]',
      '[us]: was added to :[g]: group',
      '[u]: created :[g]',
@@ -44,10 +44,10 @@ const msgs=['[u]: is now friend with :[u]',
 
 var addnotif =function (types,parts) {
     console.log('add',types,parts);
-    var notification={seen:false};
+   // var notification={seen:false};
     var friends;
     if(parts.user!==undefined){
-        console.log('userr')
+        console.log('userr');
         mongoose.model('users').find({_id:parts.user},function (err,user) {
             if(!err) friends=user.friends;
             else console.log(err);
@@ -64,6 +64,9 @@ var addnotif =function (types,parts) {
             case 1 :{
                 if(parts.group.members.length!==0){
                     notification.to=parts.group.members;
+                    for (var i=0;i<parts.group.members.length;i++){
+                        notification.seen[i]=false;
+                    }
                     notification.userId=parts.user;
                     notification.groupId=parts.group._id;
                     notification.message=msgs[1];
@@ -73,6 +76,9 @@ var addnotif =function (types,parts) {
             case 2 :{
                 notification.usersId=parts.usersId;
                 notification.to=parts.group.members;
+                for (var i=0;i<notification.to.length;i++){
+                    notification.seen[i]=false;
+                }
                 notification.groupId=parts.group._id;
                 notification.message=msgs[2];
             }
@@ -80,6 +86,9 @@ var addnotif =function (types,parts) {
 
             case 3 :{
                 notification.to=friends;
+                for (var i=0;i<notification.to.length;i++){
+                    notification.seen[i]=false;
+                }
                 notification.userId=parts.user;
                 notification.groupId=parts.group._id;
                 notification.message=msgs[3];
@@ -89,6 +98,9 @@ var addnotif =function (types,parts) {
             case 4 :{
 
                 notification.to=parts.order.invitedfriends;
+                for (var i=0;i<notification.to.length;i++){
+                    notification.seen[i]=false;
+                }
                 notification.orderId=parts.order._id;
                 notification.userId=parts.user._id;
                 notification.message=msgs[4];
@@ -97,6 +109,9 @@ var addnotif =function (types,parts) {
 
             case 5 :{
                 notification.to=friends;
+                for (var i=0;i<notification.to.length;i++){
+                    notification.seen[i]=false;
+                }
                 notification.orderId=parts.order._id;
                 notification.userId=parts.user._id;
                 notification.message=msgs[5];
@@ -105,6 +120,9 @@ var addnotif =function (types,parts) {
 
             case 6 :{
                 notification.to=parts.order.joined;
+                for (var i=0;i<notification.to.length;i++){
+                    notification.seen[i]=false;
+                }
                 notification.orderId=parts.order._id;
                 notification.message=msgs[6];
 
@@ -113,6 +131,9 @@ var addnotif =function (types,parts) {
 
             case 7 :{
                 notification.to=parts.order.joined;
+                for (var i=0;i<notification.to.length;i++){
+                    notification.seen[i]=false;
+                }
                 notification.orderId=parts.order._id;
                 notification.message=msgs[7];
             }
@@ -121,6 +142,7 @@ var addnotif =function (types,parts) {
             case 8 :{
                 console.log('case 8')
                 notification.to=parts.userId;
+                notification.seen[0]=false
                 notification.userId=parts.user;
                 notification.message=msgs[8];
             }
@@ -134,6 +156,9 @@ var addnotif =function (types,parts) {
                             notification.to.push.apply(notification.to,group.members);
                         }
                     })
+                }
+                for (var i=0;i<notification.to.length;i++){
+                    notification.seen[i]=false;
                 }
                 notification.orderId=parts.order._id;
                 notification.groupId=parts.group._id;
@@ -213,15 +238,22 @@ router.get('/activities',function (request,response) {
 router.put('/',postRequestMiddleware,function (request,response) {
     var id =request.body.id;
     console.log(id);
-    mongoose.model('notifications').update({_id:id},{$set:{seen:true}},function(err,yes){
+    mongoose.model('notifications').find({_id:id},function (err,notif) {
         if(!err){
-            response.status(200);
-            response.send("success ");
+            var index= notif.indexOf(request.token._id);
+            var up= 'seen.'+index.toString();
+            var obj={};
+             obj[up]=true;
+            mongoose.model('notifications').update({_id:id},{$set:obj},function (err) {
+                if(!err) console.log('success');
+                else console.log(err);
+            })
+
         }else{
-            response.status(404);
-            response.send("Error");
+            console.log("Error",err);
         }
-    });
+    })
+
 
 });
 
