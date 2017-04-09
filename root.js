@@ -91,7 +91,11 @@ expressServer.get("/",function(request, response){
     //check at home controller if not logged in redirect to login
 });
 
+////load angular
 
+// expressServer.get('/', function(req, res, next){
+//     return res.sendfile(expressServer.get('public') + '/index.html');
+// });
 
 
 
