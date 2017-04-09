@@ -44,6 +44,10 @@ router.get("/",function(request,response){
     //response.json
 });
 
+router.post("/loginwithfb",postRequestMiddleware,function(request,response){
+
+})
+
 router.post("/register",postRequestMiddleware,function(request,response){
     var UserModel=mongoose.model("users");
 

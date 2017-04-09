@@ -73,8 +73,8 @@ router.post("/addfriend",postRequestMiddleware,function(request,response){
         // ObjectId("58e634304045c81e8f22f5b7")
         // friendid="58e634304045c81e8f22f5b7";
 
-         console.log("friendd"+friendid);
-         console.log("logeedd"+loggedid);
+        //  console.log("friendd"+friendid);
+        //  console.log("logeedd"+loggedid);
         if( loggedid != friendid){
 // console.log("ssss")
           var userfriends=loggeduser[0].friends;

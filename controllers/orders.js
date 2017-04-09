@@ -18,8 +18,9 @@ router.use(function(request,response,next){
 //list orders
 router.get("/allorders",function(request,response){
 console.log("token",request.token._id)
-      mongoose.model('orders').find({$or:[{owner:request.token._id},{joined:request.token._id},
-        {invitedfriends:request.token._id}]})
+      mongoose.model('orders').find({$or:[{owner:request.token._id},{joined:request.token._id}
+        // ,{invitedfriends:request.token._id}
+      ]})
       .populate('joined invitedfriends invitedgroups',['name','username']).exec(function (err,orders) {
           if(!err) {
             var type;
@@ -33,15 +34,15 @@ console.log("token",request.token._id)
            var joinedarr=[];
            var invitedgroup=[];
            var invitedfriend=[];
-
-           var invited=order.invitedfriends.length+order.invitedgroups.length;
+           var grouparraylength=0;
+          //  var invited=order.invitedfriends.length+order.invitedgroups.length;
           joined.forEach(function(joined){
           joinedarr.push(joined.name);
 
         })
           invitedgrp.forEach(function(grp){
           invitedgroup.push(grp.name);
-
+          grouparraylength+=grp.length;
         })
          invitedfri.forEach(function(friend){
          invitedfriend.push(friend.name);
@@ -50,6 +51,7 @@ console.log("token",request.token._id)
 //
 //         // console.log(joinedarr)
 //
+ var invited=order.invitedfriends.length+grouparraylength;
               var orderobj={
               name:order.name,
               id:order._id,
@@ -175,7 +177,8 @@ console.log("delete")
 router.delete("/removeinvited",postRequestMiddleware,function(request,response){
   //orderid
   // mongoose.model("users").find({email:request.token},{_id:true},function(err,user){
-  mongoose.model("orders").update({_id:request.body.orderid,owner:request.token.id},{$pull:{invitedfriends:request.body.personid}},function(err,res){
+  mongoose.model("orders").update({_id:request.body.orderid,owner:request.token.id},{$pull:{invitedfriends:request.body.personid}},
+    function(err,res){
 if(!err){response.json({success:true})}
   })
 })
@@ -192,7 +195,19 @@ else{response.json({success:false})}
 
   })
 })
+
 // })
+router.post("/join",postRequestMiddleware,function(request,response){
+  mongoose.model("orders").update({_id:request.body.orderid},
+    {  $pull:{ invitedfriends:request.token._id},
+       $push:{ joined:request.token._id}
+     },
+      function(err,order){
+  if(!err){
+    response.json({success:true});
+  }
+})
+})
 
 router.post("/addmeal",postRequestMiddleware,function(request,response){
   mongoose.model("users").find({email:request.token.email},{_id:true,username:true},function(err,user){
@@ -201,9 +216,8 @@ console.log("update")
 //
     {_id:request.body.orderid},{
     $addToSet:{ meals:{person:user[0].username,personid:user[0]._id,
-    item:request.body.item,price:request.body.price,amount:request.body.amount,comment:request.body.comment} },
-     $pull:{ invitedfriends:user[0]._id},
-     $push:{ joined:user[0]._id }
+    item:request.body.item,price:request.body.price,amount:request.body.amount,comment:request.body.comment} }
+
    },
     function(err,order){
 if(!err){
