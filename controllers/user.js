@@ -83,8 +83,11 @@ router.post("/addfriend",postRequestMiddleware,function(request,response){
 
           })
           if(flag == 0){
-            mongoose.model("users").update({email:request.token.email},{ $push:{friends: user[0]._id} },function(err,i){
-              response.json({success:true});
+
+              mongoose.model("users").update({email:request.token.email},{ $push:{friends: user[0]._id} },function(err,i){
+
+                  notifications.sendnotif([8],{user:request.token._id,userId:user[0]._id})
+                  response.json({success:true});
           })
         }
         else{

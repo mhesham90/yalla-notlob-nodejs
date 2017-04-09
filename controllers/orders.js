@@ -110,7 +110,7 @@ router.post("/add",postRequestMiddleware,function(request,response){
 
           order.save(function(err){
           if(!err){
-              notifications.sendnotif([4,5],{user:request.token._id,})
+              notifications.sendnotif([4,5],{user:request.token._id,order:order})
             response.json("success");
 
           }else{
@@ -126,7 +126,8 @@ router.post("/add",postRequestMiddleware,function(request,response){
         owner:user[0]._id,checkedout:false,meals:[],invitedgroups:groups,joined:[]});
         order.save(function(err){
         if(!err){
-          response.json("success");
+            notifications.sendnotif([9,5],{user:request.token._id,order:order})
+            response.json("success");
         }else{
           response.json("Error");
         }
@@ -157,14 +158,17 @@ router.delete("/cancel",postRequestMiddleware,function(request,response){
  console.log("request.body.id",request.body.id)
     mongoose.model("users").find({email:request.token.email},{_id:true},function(err,user){
 
- //
-   mongoose.model("orders").remove({owner:user[0]._id,_id:request.body.id},function(err,order){
-      if (!err) { response.json("success");
-console.log("success")}
+ ////////////////////////////////
+   mongoose.model("orders").findOneAndRemove({owner:user[0]._id,_id:request.body.id},function(err,order){
+      if (!err) {
+          notifications.sendnotif([7],{order:order})
+          response.json("success");
+          console.log("success")
+      }
 
       else{
         response.send("Error");
-console.log(err)
+        console.log(err)
       }
     });
 
@@ -181,7 +185,8 @@ router.delete("/removeinvited",postRequestMiddleware,function(request,response){
   // mongoose.model("users").find({email:request.token},{_id:true},function(err,user){
   mongoose.model("orders").update({_id:request.body.orderid,owner:request.token.id},{$pull:{invitedfriends:request.body.personid}},
     function(err,res){
-if(!err){response.json({success:true})}
+        if(!err){
+            response.json({success:true})}
   })
 })
 // })
@@ -236,10 +241,11 @@ if(!err){
 })
 
 router.post("/checkout",postRequestMiddleware,function(request,response){
-    mongoose.model("orders").update({owner:request.token.id,_id:request.body.id},
+    mongoose.model("orders").findOneAndUpdate({owner:request.token.id,_id:request.body.id},
       {$set:{status:"finished"}},function(err,order){
         if(!err){
-          response.json({success:true});
+            notifications.sendnotif([6],{order:order});
+            response.json({success:true});
         }
       })
 })

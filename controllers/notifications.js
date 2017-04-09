@@ -30,7 +30,7 @@ var notifMsg= function (notification) {
     return {msg:msg,notif_id:notification._id}
 }
 
-const msgs=[//'[u]: is now friend with :[u]',
+const msgs=['[u]: is now friend with :[u]',
      '[u]: added you to :[g]',
      '[us]: was added to :[g]: group',
      '[u]: created :[g]',
@@ -43,19 +43,22 @@ const msgs=[//'[u]: is now friend with :[u]',
 ];
 
 var addnotif =function (types,parts) {
-    console.log('add',types,parts);
-   // var notification={seen:false};
+    var notification={seen:[]};
     var friends;
+    console.log(parts.user);
     if(parts.user!==undefined){
-        console.log('userr');
-        mongoose.model('users').find({_id:parts.user},function (err,user) {
+        console.log('in if')
+        mongoose.model("users").find({_id:parts.user},function (err,user) {
+            console.log('usr',user,err);
             if(!err) friends=user.friends;
-            else console.log(err);
+            else console.log('error',err);
         });
+        console.log('in if')
+
     }
+    console.log('friends',friends);
     types.forEach(function (type) {
 
-        console.log(type);
         switch (type){
             case 0 :{
                  //deprecated
@@ -140,7 +143,6 @@ var addnotif =function (types,parts) {
                 break;
 
             case 8 :{
-                console.log('case 8')
                 notification.to=parts.userId;
                 notification.seen[0]=false
                 notification.userId=parts.user;
@@ -193,7 +195,6 @@ var router = express.Router();
 
 router['sendnotif']=function (types,parts) {
     addnotif(types,parts);
-    console.log('send notif',types,parts);
     for (var clientid in ioLoggedClients) {
         if (notification.to.includes(clientid)) {
             ioLoggedClients[clientid].emit('newNotif');
@@ -225,7 +226,6 @@ router.get('/',function (request,response) {
         notif.forEach(function (notification) {
 
             var notif =notifMsg(notification);
-            console.log(notif);
         })
     })
 
@@ -237,7 +237,6 @@ router.get('/activities',function (request,response) {
 
 router.put('/',postRequestMiddleware,function (request,response) {
     var id =request.body.id;
-    console.log(id);
     mongoose.model('notifications').find({_id:id},function (err,notif) {
         if(!err){
             var index= notif.indexOf(request.token._id);
