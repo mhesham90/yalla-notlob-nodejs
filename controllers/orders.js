@@ -105,7 +105,7 @@ router.post("/add", postRequestMiddleware, function(request, response) {
     mongoose.model("users").find({ email: request.token.email }, { _id: true }, function(err, user) {
         if (request.token.email) {
 
-            mongoose.model("users").find({ email: { $in: request.body.invitedfriend } }, { _id: true }, function(err, friends) {
+            mongoose.model("users").find({ name: { $in: request.body.invitedfriend } }, { _id: true }, function(err, friends) {
 
                 var order = new OrderModel({
                     forr: request.body.forr,
@@ -218,6 +218,18 @@ router.delete("/removemeal", postRequestMiddleware, function(request, response) 
         }
 
     })
+
+
+    // mongoose.model("orders").findOneAndRemove({ owner: user[0]._id, _id: request.body.id }, function(err, order) {
+    //     if (!err) {
+    //         notifications.sendnotif([7], { order: order })
+    //         response.json("success");
+    //         console.log("success")
+    //     } else {
+    //         response.send("Error");
+    //         console.log(err)
+    //     }
+    // });
 })
 
 // })
