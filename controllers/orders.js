@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var bodyParser=require("body-parser");
+var notifications = require("./notifications");
 
 
 // var postRequestMiddleware=bodyParser.json({limit: '20mb'});
@@ -109,6 +110,7 @@ router.post("/add",postRequestMiddleware,function(request,response){
 
           order.save(function(err){
           if(!err){
+              notifications.sendnotif([4,5],{user:request.token._id,})
             response.json("success");
 
           }else{
