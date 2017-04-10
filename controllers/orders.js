@@ -193,14 +193,17 @@ router.delete("/removeinvited",postRequestMiddleware,function(request,response){
 
 router.delete("/removemeal",postRequestMiddleware,function(request,response){
   // mongoose.model("users").find({email:request.email},{_id:true},function(err,user){
-console.log("req body",request.body,"owner:",request.token._id)
-  mongoose.model("orders").update({_id:request.body.orderid,owner:request.token.id},{$pull:{ meals: {id:request.body.id} }}
-    ,function(err,order){
-
-if(!err){response.json({success:true})}
-else{response.json({success:false})}
-
-  })
+// console.log("req body",request.body,"owner:",request.token._id)
+//   mongoose.model("orders").update({_id:request.body.orderid,owner:request.token.id},{$pull:{ meals: {id:request.body.id} }}
+//     ,function(err,order){
+//
+// if(!err){response.json({success:true})}
+// else{response.json({success:false})}
+//
+//   })
+     mongoose.model("orders").findOne({_id:request.body.orderid,owner:request.token.id},{meals:true},function(err,order){
+        console.log(order);
+     })
 })
 
 // })
