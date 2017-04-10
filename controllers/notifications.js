@@ -32,7 +32,7 @@ var notifMsg= function (notification) {
 
 const msgs=['[u]: is now friend with :[u]',
      '[u]: added you to :[g]',
-     '[us]: was added to :[g]: group',
+     '[u]: was added to :[g]: group',
      '[u]: created :[g]',
      '[u]: invitated to you :[o]: order',
      '[u]: made an order :[o]',
@@ -43,148 +43,151 @@ const msgs=['[u]: is now friend with :[u]',
 ];
 
 var addnotif =function (types,parts) {
-    var notification={seen:[]};
-    var friends;
+
     console.log(parts.user);
-    if(parts.user!==undefined){
         console.log('in if')
-        mongoose.model("users").find({_id:parts.user},function (err,user) {
-            console.log('usr',user,err);
-            if(!err) friends=user.friends;
+        var friends=mongoose.model("users").find({_id:parts.user},function (err,user) {
+            console.log(parts);
+            if(!err){
+                var notification={seen:[]};
+                if(user.length!==0)
+                var friends=user[0].friends;
+                console.log('friends',friends);
+                types.forEach(function (type) {
+
+                    switch (type){
+                        case 0 :{
+                            //deprecated
+                            break;
+                        }
+                        case 1 :{
+                            if(parts.group.members.length!==0){
+                                notification.to=parts.group.members;
+                                for (var i=0;i<parts.group.members.length;i++){
+                                    notification.seen[i]=false;
+                                }
+                                notification.userId=parts.user;
+                                notification.groupId=parts.group._id;
+                                notification.message=msgs[1];
+                            }
+                            break;
+                        }
+                        case 2 :{
+                            notification.userId=parts.userId;
+                            notification.to=parts.group.members;
+                            for (var i=0;i<notification.to.length;i++){
+                                notification.seen[i]=false;
+                            }
+                            notification.groupId=parts.group._id;
+                            notification.message=msgs[2];
+                        }
+                            break;
+
+                        case 3 :{
+                            notification.to=friends;
+                            for (var i=0;i<notification.to.length;i++){
+                                notification.seen[i]=false;
+                            }
+                            notification.userId=parts.user;
+                            notification.groupId=parts.group._id;
+                            notification.message=msgs[3];
+                        }
+                            break;
+
+                        case 4 :{
+
+                            notification.to=parts.order.invitedfriends;
+                            for (var i=0;i<notification.to.length;i++){
+                                notification.seen[i]=false;
+                            }
+                            notification.orderId=parts.order._id;
+                            notification.userId=parts.user;
+                            notification.message=msgs[4];
+                        }
+                            break;
+
+                        case 5 :{
+                            notification.to=friends;
+                            for (var i=0;i<notification.to.length;i++){
+                                notification.seen[i]=false;
+                            }
+                            notification.orderId=parts.order._id;
+                            notification.userId=parts.user;
+                            notification.message=msgs[5];
+                        }
+                            break;
+
+                        case 6 :{
+                            notification.to=parts.order.joined;
+                            for (var i=0;i<notification.to.length;i++){
+                                notification.seen[i]=false;
+                            }
+                            notification.orderId=parts.order._id;
+                            notification.message=msgs[6];
+
+                        }
+                            break;
+
+                        case 7 :{
+                            notification.to=parts.order.joined;
+                            for (var i=0;i<notification.to.length;i++){
+                                notification.seen[i]=false;
+                            }
+                            notification.orderId=parts.order._id;
+                            notification.message=msgs[7];
+                        }
+                            break;
+
+                        case 8 :{
+                            notification.to=parts.userId;
+                            notification.seen[0]=false
+                            notification.userId=parts.user;
+                            notification.message=msgs[8];
+                        }
+                            break;
+
+                        case 9:{
+                            notification.to=[];
+                            for (var group in parts.order.invitedgroups){
+                                mongoose.model('groups').findOne({_id:group},function (err,group) {
+                                    if(!err){
+                                        notification.to.push.apply(notification.to,group.members);
+                                    }
+                                })
+                            }
+                            for (var i=0;i<notification.to.length;i++){
+                                notification.seen[i]=false;
+                            }
+                            notification.orderId=parts.order._id;
+                            notification.groupId=parts.group._id;
+                        }
+                            break;
+
+                        default:break;
+
+                    }
+                    console.log('after',notification);
+
+                    var notifModel=mongoose.model("notifications");
+                    var notif=new notifModel(notification);
+                    notif.save(function (err) {
+                        if(!err){
+                            console.log("success");
+                        }else{
+                            console.log("Error",err);
+                        }
+
+                    });
+
+
+                })
+
+
+
+            }
             else console.log('error',err);
         });
-        console.log('in if')
 
-    }
-    console.log('friends',friends);
-    types.forEach(function (type) {
-
-        switch (type){
-            case 0 :{
-                 //deprecated
-               break;
-            }
-            case 1 :{
-                if(parts.group.members.length!==0){
-                    notification.to=parts.group.members;
-                    for (var i=0;i<parts.group.members.length;i++){
-                        notification.seen[i]=false;
-                    }
-                    notification.userId=parts.user;
-                    notification.groupId=parts.group._id;
-                    notification.message=msgs[1];
-                }
-                break;
-            }
-            case 2 :{
-                notification.usersId=parts.usersId;
-                notification.to=parts.group.members;
-                for (var i=0;i<notification.to.length;i++){
-                    notification.seen[i]=false;
-                }
-                notification.groupId=parts.group._id;
-                notification.message=msgs[2];
-            }
-                break;
-
-            case 3 :{
-                notification.to=friends;
-                for (var i=0;i<notification.to.length;i++){
-                    notification.seen[i]=false;
-                }
-                notification.userId=parts.user;
-                notification.groupId=parts.group._id;
-                notification.message=msgs[3];
-            }
-                break;
-
-            case 4 :{
-
-                notification.to=parts.order.invitedfriends;
-                for (var i=0;i<notification.to.length;i++){
-                    notification.seen[i]=false;
-                }
-                notification.orderId=parts.order._id;
-                notification.userId=parts.user._id;
-                notification.message=msgs[4];
-            }
-                break;
-
-            case 5 :{
-                notification.to=friends;
-                for (var i=0;i<notification.to.length;i++){
-                    notification.seen[i]=false;
-                }
-                notification.orderId=parts.order._id;
-                notification.userId=parts.user._id;
-                notification.message=msgs[5];
-            }
-                break;
-
-            case 6 :{
-                notification.to=parts.order.joined;
-                for (var i=0;i<notification.to.length;i++){
-                    notification.seen[i]=false;
-                }
-                notification.orderId=parts.order._id;
-                notification.message=msgs[6];
-
-            }
-                break;
-
-            case 7 :{
-                notification.to=parts.order.joined;
-                for (var i=0;i<notification.to.length;i++){
-                    notification.seen[i]=false;
-                }
-                notification.orderId=parts.order._id;
-                notification.message=msgs[7];
-            }
-                break;
-
-            case 8 :{
-                notification.to=parts.userId;
-                notification.seen[0]=false
-                notification.userId=parts.user;
-                notification.message=msgs[8];
-            }
-                break;
-
-            case 9:{
-                notification.to=[];
-                for (var group in parts.order.invitedgroups){
-                    mongoose.model('groups').findOne({_id:group},function (err,group) {
-                        if(!err){
-                            notification.to.push.apply(notification.to,group.members);
-                        }
-                    })
-                }
-                for (var i=0;i<notification.to.length;i++){
-                    notification.seen[i]=false;
-                }
-                notification.orderId=parts.order._id;
-                notification.groupId=parts.group._id;
-            }
-                break;
-
-            default:break;
-
-        }
-        console.log('after',notification);
-
-        var notifModel=mongoose.model("notifications");
-        var notif=new notifModel(notification);
-        notif.save(function (err) {
-            if(!err){
-                console.log("success");
-            }else{
-                console.log("Error",err);
-            }
-
-        });
-
-
-    })
 
 }
 

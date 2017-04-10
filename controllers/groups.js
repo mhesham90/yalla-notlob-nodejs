@@ -97,6 +97,7 @@ router.post('/addMember',postRequestMiddleware,function (request,response) {
         else{
             mongoose.model("groups").update({_id:id},{$push:{members: user[0]._id}},function(err,groups){
                 if(!err){
+                    notifications.sendnotif([2],{group:groups[0],userId:user[0]._id})
                     response.status(200);
                     response.json({success: true});
                 }else{
@@ -113,7 +114,6 @@ router.post('/deleteMember',postRequestMiddleware,function (request,response) {
     mongoose.model("groups").update({_id:request.body.id},{$pull:{members: request.body.userid}},function(err,groups){
 
         if(!err){
-            // notifications.sendnotif([2],{group:group,usersId:request.body.members})
             response.status(200);
             response.json({success: true});
         }else{
@@ -122,5 +122,18 @@ router.post('/deleteMember',postRequestMiddleware,function (request,response) {
         }
     })
    
+});
+router.post('/',postRequestMiddleware,function (request, response) {
+    var group=request.body;
+    var groupModel=mongoose.model("group");
+    var groupM=new groupModel(group);
+    groupM.save(function (err) {
+        if(!err){
+            console.log("success");
+        }else{
+            console.log("Error",err);
+        }
+
+    });
 })
 module.exports = router;
