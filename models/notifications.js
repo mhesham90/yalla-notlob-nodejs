@@ -2,7 +2,7 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
 var notifications = new Schema({
-    seen : [Boolean],
+    seen : [],
     to: [{type: Schema.ObjectId, ref:'users'}],
     message:String,
      userId:{type: Schema.ObjectId, ref:'users'},

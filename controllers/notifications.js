@@ -1,58 +1,58 @@
-var express=require('express');
-var expressServer=express();
-var bodyParser=require("body-parser");
-var postRequestMiddleware=bodyParser.json;
+var express = require('express');
+var expressServer = express();
+var bodyParser = require("body-parser");
+var postRequestMiddleware = bodyParser.json;
 var mongoose = require("mongoose");
 
-var notifMsg= function (notification) {
+var notifMsg = function(notification) {
     console.log(notification);
 
-    var msg =notification.message;
+    var msg = notification.message;
     console.log(msg)
-    msg =msg.split(':');
-    if(msg.indexOf('[u]')!== -1){
-        notification.userId['type']="user";
-        msg[msg.indexOf('[u]')]=notification.userId
+    msg = msg.split(':');
+    if (msg.indexOf('[u]') !== -1) {
+        notification.userId['type'] = "user";
+        msg[msg.indexOf('[u]')] = notification.userId
     }
-    if(msg.indexOf('[us]')!== -1){
-        var users={type:'users',users:notification.usersId};
-        msg[msg.indexOf('[us]')]=users;
+    if (msg.indexOf('[us]') !== -1) {
+        var users = { type: 'users', users: notification.usersId };
+        msg[msg.indexOf('[us]')] = users;
     }
-    if(msg.indexOf('[o]')!== -1){
-        notification.orderId['type']="order";
-        msg[msg.indexOf('[o]')]=notification.orderId
+    if (msg.indexOf('[o]') !== -1) {
+        notification.orderId['type'] = "order";
+        msg[msg.indexOf('[o]')] = notification.orderId
     }
-    if(msg.indexOf('[g]')!== -1){
-        notification.groupId['type']="group";
-        msg[msg.indexOf('[g]')]=notification.groupId
+    if (msg.indexOf('[g]') !== -1) {
+        notification.groupId['type'] = "group";
+        msg[msg.indexOf('[g]')] = notification.groupId
     }
 
-    return {msg:msg,notif_id:notification._id}
+    return { msg: msg, notif_id: notification._id }
 }
 
 const msgs=['[u]: is now friend with :[u]',
      '[u]: added you to :[g]',
      '[u]: was added to :[g]: group',
      '[u]: created :[g]',
-     '[u]: invitated to you :[o]: order',
+     '[u]: invitated you to :[o]: order',
      '[u]: made an order :[o]',
      'your :[o]: was sent',
      'your :[o]: was deleted',
      '[u]: added you as friend',
      'your group :[g]: was invited to :[o]: order'
 ];
-
+//
 var addnotif =function (types,parts) {
 
     console.log(parts.user);
         console.log('in if')
-        var friends=mongoose.model("users").find({_id:parts.user},function (err,user) {
+        mongoose.model("users").find({_id:parts.user},function (err,user) {
             console.log(parts);
             if(!err){
                 var notification={seen:[]};
                 if(user.length!==0)
                 var friends=user[0].friends;
-                console.log('friends',friends);
+                //console.log('friends',friends);
                 types.forEach(function (type) {
 
                     switch (type){
@@ -64,7 +64,7 @@ var addnotif =function (types,parts) {
                             if(parts.group.members.length!==0){
                                 notification.to=parts.group.members;
                                 for (var i=0;i<parts.group.members.length;i++){
-                                    notification.seen[i]=false;
+                                    notification.seen[i]={seen:false,id:parts.group.members[i]};
                                 }
                                 notification.userId=parts.user;
                                 notification.groupId=parts.group._id;
@@ -76,7 +76,7 @@ var addnotif =function (types,parts) {
                             notification.userId=parts.userId;
                             notification.to=parts.group.members;
                             for (var i=0;i<notification.to.length;i++){
-                                notification.seen[i]=false;
+                                notification.seen[i]={seen:false,id:notification.to[i]};
                             }
                             notification.groupId=parts.group._id;
                             notification.message=msgs[2];
@@ -86,7 +86,7 @@ var addnotif =function (types,parts) {
                         case 3 :{
                             notification.to=friends;
                             for (var i=0;i<notification.to.length;i++){
-                                notification.seen[i]=false;
+                                notification.seen[i]={seen:false,id:notification.to[i]};
                             }
                             notification.userId=parts.user;
                             notification.groupId=parts.group._id;
@@ -95,10 +95,11 @@ var addnotif =function (types,parts) {
                             break;
 
                         case 4 :{
-
-                            notification.to=parts.order.invitedfriends;
+                            var invited =[]
+                            parts.order.invitedfriends.forEach(function (f) { invited.push(f._id) });
+                            notification.to=invited;
                             for (var i=0;i<notification.to.length;i++){
-                                notification.seen[i]=false;
+                                notification.seen[i]={seen:false,id:notification.to[i]};
                             }
                             notification.orderId=parts.order._id;
                             notification.userId=parts.user;
@@ -109,7 +110,7 @@ var addnotif =function (types,parts) {
                         case 5 :{
                             notification.to=friends;
                             for (var i=0;i<notification.to.length;i++){
-                                notification.seen[i]=false;
+                                notification.seen[i]={seen:false,id:notification.to[i]};
                             }
                             notification.orderId=parts.order._id;
                             notification.userId=parts.user;
@@ -120,7 +121,7 @@ var addnotif =function (types,parts) {
                         case 6 :{
                             notification.to=parts.order.joined;
                             for (var i=0;i<notification.to.length;i++){
-                                notification.seen[i]=false;
+                                notification.seen[i]={seen:false,id:notification.to[i]};
                             }
                             notification.orderId=parts.order._id;
                             notification.message=msgs[6];
@@ -131,7 +132,7 @@ var addnotif =function (types,parts) {
                         case 7 :{
                             notification.to=parts.order.joined;
                             for (var i=0;i<notification.to.length;i++){
-                                notification.seen[i]=false;
+                                notification.seen[i]={seen:false,id:notification.to[i]};
                             }
                             notification.orderId=parts.order._id;
                             notification.message=msgs[7];
@@ -140,7 +141,7 @@ var addnotif =function (types,parts) {
 
                         case 8 :{
                             notification.to=parts.userId;
-                            notification.seen[0]=false
+                            notification.seen[0]={seen:false,id:notification.to[i]}
                             notification.userId=parts.user;
                             notification.message=msgs[8];
                         }
@@ -148,15 +149,11 @@ var addnotif =function (types,parts) {
 
                         case 9:{
                             notification.to=[];
-                            for (var group in parts.order.invitedgroups){
-                                mongoose.model('groups').findOne({_id:group},function (err,group) {
-                                    if(!err){
-                                        notification.to.push.apply(notification.to,group.members);
-                                    }
-                                })
-                            }
+
+                            notification.to.push.apply(notification.to,parts.group.members);
+
                             for (var i=0;i<notification.to.length;i++){
-                                notification.seen[i]=false;
+                                notification.seen[i]={seen:false,id:notification.to[i]};
                             }
                             notification.orderId=parts.order._id;
                             notification.groupId=parts.group._id;
@@ -184,6 +181,7 @@ var addnotif =function (types,parts) {
 
 
 
+
             }
             else console.log('error',err);
         });
@@ -196,8 +194,9 @@ var router = express.Router();
 
 //send notification
 
-router['sendnotif']=function (types,parts) {
-    addnotif(types,parts);
+router['sendnotif'] = function(types, parts) {
+    addnotif(types, parts);
+    console.log('send notif', types, parts);
     for (var clientid in ioLoggedClients) {
         if (notification.to.includes(clientid)) {
             ioLoggedClients[clientid].emit('newNotif');
@@ -205,11 +204,11 @@ router['sendnotif']=function (types,parts) {
     }
 }
 
-io.on("connection",function (client) {
+io.on("connection", function(client) {
     ioUnloggedClients.push(client);
-    client.on('login',function (id) {
-        ioLoggedClients[id]=client;
-        ioUnloggedClients.splice(ioUnloggedClients.indexOf(client),1);
+    client.on('login', function(id) {
+        ioLoggedClients[id] = client;
+        ioUnloggedClients.splice(ioUnloggedClients.indexOf(client), 1);
 
     })
 
@@ -218,41 +217,45 @@ io.on("connection",function (client) {
 
 
 
-router.get('/',function (request,response) {
+router.get('/', function(request, response) {
     //get user id
     //var id='58e75d0ef48126268d2dc6c6';
 
-    var id =request.token._id;
+    var id = request.token._id;
 
-    mongoose.model('notifications').find({to:id,seen:false}).populate(' userId groupId orderId usersId',['username','name']).exec(function (err,notif) {
+    mongoose.model('notifications').find({ seen: {$elemMatch: {seen:false, id:request.token._id}}}).populate(' userId groupId orderId usersId', ['username', 'name']).exec(function(err, notif) {
+        var notifff=[];
+        notif.forEach(function(notification) {
 
-        notif.forEach(function (notification) {
-
-            var notif =notifMsg(notification);
+            var notif = notifMsg(notification);
+            notifff.push(notif);
+            console.log(notif);
         })
+        request.json(notifff);
     })
 
 })
 
-router.get('/activities',function (request,response) {
+router.get('/activities', function(request, response) {
 
 })
 
-router.put('/',postRequestMiddleware,function (request,response) {
-    var id =request.body.id;
-    mongoose.model('notifications').find({_id:id},function (err,notif) {
-        if(!err){
-            var index= notif.indexOf(request.token._id);
-            var up= 'seen.'+index.toString();
-            var obj={};
-             obj[up]=true;
-            mongoose.model('notifications').update({_id:id},{$set:obj},function (err) {
-                if(!err) console.log('success');
+router.put('/', postRequestMiddleware, function(request, response) {
+    var id = request.body.id;
+    console.log(id);
+    mongoose.model('notifications').find({ _id: id }, function(err, notif) {
+        if (!err) {
+            var index = notif.indexOf(request.token._id);
+            var up = 'seen.' + index.toString();
+            var obj = {};
+            obj[up] = true;
+            mongoose.model('notifications').update({ _id: id }, { $set: obj }, function(err) {
+                if (!err) console.log('success');
                 else console.log(err);
             })
 
-        }else{
-            console.log("Error",err);
+        } else {
+            console.log("Error", err);
         }
     })
 
