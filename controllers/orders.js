@@ -210,6 +210,7 @@ router.delete("/removeinvited", postRequestMiddleware, function(request, respons
     })
     // })
 
+
 router.delete("/removemeal", postRequestMiddleware, function(request, response) {
     var id = mongoose.Types.ObjectId(request.body.orderid)
     var id2 = mongoose.Types.ObjectId(request.body.id)
@@ -238,6 +239,7 @@ router.delete("/removemeal", postRequestMiddleware, function(request, response) 
     //         console.log(err)
     //     }
     // });
+
 })
 
 // })
