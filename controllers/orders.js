@@ -202,21 +202,7 @@ router.delete("/removeinvited", postRequestMiddleware, function(request, respons
     })
     // })
 
-<<<<<<< HEAD
-router.delete("/removemeal",postRequestMiddleware,function(request,response){
-  // mongoose.model("users").find({email:request.email},{_id:true},function(err,user){
-// console.log("req body",request.body,"owner:",request.token._id)
-//   mongoose.model("orders").update({_id:request.body.orderid,owner:request.token.id},{$pull:{ meals: {id:request.body.id} }}
-//     ,function(err,order){
-//
-// if(!err){response.json({success:true})}
-// else{response.json({success:false})}
-//
-//   })
-     mongoose.model("orders").findOne({_id:request.body.orderid,owner:request.token.id},{meals:true},function(err,order){
-        console.log(order);
-     })
-=======
+
 router.delete("/removemeal", postRequestMiddleware, function(request, response) {
     var id = mongoose.Types.ObjectId(request.body.orderid)
     var id2 = mongoose.Types.ObjectId(request.body.id)
@@ -245,7 +231,7 @@ router.delete("/removemeal", postRequestMiddleware, function(request, response) 
     //         console.log(err)
     //     }
     // });
->>>>>>> 6e0c6826e085bb02f719aad8b9242fe1eb82e741
+
 })
 
 // })
