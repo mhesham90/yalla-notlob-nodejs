@@ -66,6 +66,8 @@ router.post("/",postRequestMiddleware,function(request,response){
             var group = new groupModel({name:request.body.name, owner: request.token._id});
             group.save(function (err) {
                 if(!err){
+                    notifications.sendnotif([3],{group:group,user:request.token._id})
+
                     response.status(200);
                     response.json({success: true});
                 }else{
@@ -75,7 +77,6 @@ router.post("/",postRequestMiddleware,function(request,response){
                 
             });
 
-            notifications.sendnotif([1,3],{group:group,user:request.token._id})
             console.log(group._id)
         }
     })
@@ -101,9 +102,9 @@ router.post('/addMember',postRequestMiddleware,function (request,response) {
             response.json({success:false,error:"No such user"});
         }
         else{
-            mongoose.model("groups").update({_id:id},{$push:{members: user[0]._id}},function(err,groups){
+            mongoose.model("groups").findOneAndUpdate({_id:id},{$push:{members: user[0]._id}},function(err,groups){
                 if(!err){
-                    notifications.sendnotif([2],{group:groups[0],userId:user[0]._id})
+                    notifications.sendnotif([1,2],{group:groups,userId:user[0]._id})
                     response.status(200);
                     response.json({success: true});
                 }else{
@@ -129,17 +130,5 @@ router.post('/deleteMember',postRequestMiddleware,function (request,response) {
     })
    
 });
-router.post('/',postRequestMiddleware,function (request, response) {
-    var group=request.body;
-    var groupModel=mongoose.model("group");
-    var groupM=new groupModel(group);
-    groupM.save(function (err) {
-        if(!err){
-            console.log("success");
-        }else{
-            console.log("Error",err);
-        }
 
-    });
-})
 module.exports = router;

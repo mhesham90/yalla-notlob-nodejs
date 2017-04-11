@@ -141,7 +141,7 @@ var addnotif =function (types,parts) {
 
                         case 8 :{
                             notification.to=parts.userId;
-                            notification.seen[0]={seen:false,id:notification.to[i].toString()}
+                            notification.seen[0]={seen:false,id:parts.userId.toString()}
                             notification.userId=parts.user;
                             notification.message=msgs[8];
                         }
