@@ -44,7 +44,7 @@ const msgs=['[u]: is now friend with :[u]',
 //
 var addnotif =function (types,parts) {
 
-    console.log(parts.user);
+    console.log("parts",parts);
         console.log('in if')
         mongoose.model("users").find({_id:parts.user},function (err,user) {
             console.log(parts);
