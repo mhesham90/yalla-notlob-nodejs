@@ -5,7 +5,6 @@ var postRequestMiddleware = bodyParser.json;
 var mongoose = require("mongoose");
 
 var notifMsg = function(notification) {
-    console.log(notification);
 
     var msg = notification.message;
     console.log(msg)
@@ -14,10 +13,7 @@ var notifMsg = function(notification) {
         notification.userId['type'] = "user";
         msg[msg.indexOf('[u]')] = notification.userId
     }
-    if (msg.indexOf('[us]') !== -1) {
-        var users = { type: 'users', users: notification.usersId };
-        msg[msg.indexOf('[us]')] = users;
-    }
+
     if (msg.indexOf('[o]') !== -1) {
         notification.orderId['type'] = "order";
         msg[msg.indexOf('[o]')] = notification.orderId
@@ -119,23 +115,28 @@ var addnotif =function (types,parts) {
                             break;
 
                         case 6 :{
-                            notification.to=parts.order.joined;
-                            for (var i=0;i<notification.to.length;i++){
-                                notification.seen[i]={seen:false,id:notification.to[i].toString()};
+                            if(parts.order.hasOwnProperty('joined')) {
+                                notification.to = parts.order.joined;
+                                for (var i = 0; i < notification.to.length; i++) {
+                                    notification.seen[i] = {seen: false, id: notification.to[i].toString()};
+                                }
+                                notification.orderId = parts.order._id;
+                                notification.message = msgs[6];
                             }
-                            notification.orderId=parts.order._id;
-                            notification.message=msgs[6];
 
                         }
                             break;
 
                         case 7 :{
-                            notification.to=parts.order.joined;
-                            for (var i=0;i<notification.to.length;i++){
-                                notification.seen[i]={seen:false,id:notification.to[i].toString()};
+                            if(parts.order.hasOwnProperty('joined'))
+                            {
+                                notification.to=parts.order.joined;
+                                for (var i=0;i<notification.to.length;i++){
+                                    notification.seen[i]={seen:false,id:notification.to[i].toString()};
+                                }
+                                notification.orderId=parts.order._id;
+                                notification.message=msgs[7];
                             }
-                            notification.orderId=parts.order._id;
-                            notification.message=msgs[7];
                         }
                             break;
 
