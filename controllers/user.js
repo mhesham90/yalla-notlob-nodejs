@@ -64,7 +64,7 @@ router.post("/addfriend", postRequestMiddleware, function(request, response) {
 
             var flag = 0;
             //console.log("user[0]",user[0])
-            //console.log()
+            console.log(request.token)
             mongoose.model("users").find({ email: request.token.email }, function(err, loggeduser) {
 
                 if (loggeduser[0]._id !== user[0]._id) {

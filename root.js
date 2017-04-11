@@ -59,6 +59,7 @@ expressServer.use("/authenticate",authRouter);
                     console.log("error");
                     response.send(err);
                 } else {
+                    delete decoded._doc['password']
                 	request.token=decoded._doc;
                     next();
                 }
