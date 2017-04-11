@@ -57,32 +57,38 @@ router.get('/:id',function(request,response){
 
 //add groups
 router.post("/",postRequestMiddleware,function(request,response){
-    console.log(request.body);
     var groupModel=mongoose.model("groups");
-    var group = new groupModel(request.body);
-    group.save(function (err) {
-        if(!err){
+    groupModel.findOne({name:request.body.name, owner: request.token._id},function(err,found){
+        if (found) {
             response.status(200);
-            response.send("success");
-        }else{
-            response.status(404);
-            response.send("Error");
-        }
-        
-    });
+            response.json({success: false, error: 'Group name already exists'});
+        } else {
+            var group = new groupModel({name:request.body.name, owner: request.token._id});
+            group.save(function (err) {
+                if(!err){
+                    response.status(200);
+                    response.json({success: true});
+                }else{
+                    response.status(404);
+                    response.json({success: false, error: 'request failed please try again later'});
+                }
+                
+            });
 
-    notifications.sendnotif([1,3],{group:group,user:request.token._id})
-    console.log(group._id)
+            notifications.sendnotif([1,3],{group:group,user:request.token._id})
+            console.log(group._id)
+        }
+    })
 });
 //cancel group
 router.delete("/:id",function(request,response){
-    mongoose.model("groups").remove({_id:request.params.id},function(err,group){
+    mongoose.model("groups").remove({_id:request.params.id,  owner: request.token._id},function(err,group){
         if(!err){
             response.status(200);
-            response.send("success");
+            response.json({success: true});
         }else{
             response.status(404);
-            response.send("Error");
+            response.json({success: false, error: 'request failed please try again later'});
         }
     });
 });
