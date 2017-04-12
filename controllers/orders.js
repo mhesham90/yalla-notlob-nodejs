@@ -83,8 +83,10 @@ router.get("/allorders", function(request, response) {
 
 router.get("/latestorders", function(request, response) {
     //  mongoose.model("users").find({email:request.token.email},{_id:true},function(err,user){
-    mongoose.model("orders").find({ owner: request.token.id }, { "limit": 5 }, function(err, orders) {
+    mongoose.model("orders").find({ owner: request.token._id }, { resturant: true, createdAt: true, forr: true }, { "limit": 5 }, function(err, orders) {
+
         response.json(orders);
+
     });
     //  })
 
@@ -120,7 +122,7 @@ router.post("/add", postRequestMiddleware, function(request, response) {
 
                 order.save(function(err) {
                     if (!err) {
-                        notifications.sendnotif([4, 5], { user: request.token._id,order:order })
+                        notifications.sendnotif([4, 5], { user: request.token._id, order: order })
                         response.json("success");
 
                     } else {
@@ -131,9 +133,9 @@ router.post("/add", postRequestMiddleware, function(request, response) {
             })
         } else if (request.body.invitedgroup) {
             mongoose.model("groups").find({ name: { $in: request.body.invitedgroups } }, function(err, groups) {
-                var ingroups=[];
-                groups.forEach(function (g) {
-                    ingroups.push({_id:g._id})
+                var ingroups = [];
+                groups.forEach(function(g) {
+                    ingroups.push({ _id: g._id })
                 })
                 var order = new OrderModel({
                     forr: request.body.forr,
@@ -147,7 +149,7 @@ router.post("/add", postRequestMiddleware, function(request, response) {
                 });
                 order.save(function(err) {
                     if (!err) {
-                        notifications.sendnotif([9, 5], { user: request.token._id,order:order,group:groups[0] })
+                        notifications.sendnotif([9, 5], { user: request.token._id, order: order, group: groups[0] })
 
                         response.json("success");
                     } else {
@@ -183,7 +185,7 @@ router.delete("/cancel", postRequestMiddleware, function(request, response) {
         //findOneAndRemove
         mongoose.model("orders").findOneAndRemove({ owner: user[0]._id, _id: request.body.id }, function(err, order) {
             if (!err) {
-                 notifications.sendnotif([7],{order:order})
+                notifications.sendnotif([7], { order: order })
                 response.json("success");
                 console.log("success")
             } else {
@@ -244,7 +246,9 @@ router.delete("/removemeal", postRequestMiddleware, function(request, response) 
 
 // })
 router.post("/join", postRequestMiddleware, function(request, response) {
-    mongoose.model("orders").update({ _id: request.body.orderid }, {
+    console.log("orderis:", request.body.id)
+    mongoose.model("orders").update({ _id: request.body.id }, {
+
             $pull: { invitedfriends: request.token._id },
             $push: { joined: request.token._id }
         },
@@ -257,33 +261,29 @@ router.post("/join", postRequestMiddleware, function(request, response) {
 
 router.post("/addmeal", postRequestMiddleware, function(request, response) {
     mongoose.model("users").find({ email: request.token.email }, { _id: true, username: true }, function(err, user) {
-            console.log("update")
-            mongoose.model("orders").update(
-                    //
-                    { _id: request.body.orderid }, {
-                        $addToSet: {
-                            meals: {
-                                person: user[0].username,
-                                personid: user[0]._id,
-                                item: request.body.item,
-                                price: request.body.price,
-                                amount: request.body.amount,
-                                comment: request.body.comment
-                            }
-                        }
+        console.log("update")
+        mongoose.model("orders").update(
+            //
+            { _id: request.body.orderid }, {
+                $addToSet: {
+                    meals: {
+                        person: user[0].username,
+                        personid: user[0]._id,
+                        item: request.body.item,
+                        price: request.body.price,
+                        amount: request.body.amount,
+                        comment: request.body.comment
+                    }
+                }
 
-                    },
-                    function(err, order) {
-                        if (!err) {
-                            response.json({ success: true });
-                        }
-                    })
-                // mongoose.model("orders").find({_id:request.body.id},
-                //
-                // })
+            },
+            function(err, order) {
+                if (!err) {
+                    response.json({ success: true });
+                }
+            })
 
-        })
-        //remove from invited to joined
+    })
 
 })
 
@@ -302,11 +302,9 @@ router.post("/checkout", postRequestMiddleware, function(request, response) {
 router.post("/getorderbyid", postRequestMiddleware, function(request, response) {
 
     var id = mongoose.Types.ObjectId(request.body.id)
-        // var id2 = mongoose.mongo.BSONPure.ObjectID.fromHexString(request.body.id)
     mongoose.model("orders").findOne({ _id: id }).populate('joined invitedfriends invitedgroups', ['name', 'username']).exec(function(err, order) {
 
-        console.log("or", order)
-        console.log("eer", err)
+
         if (!err) {
 
             var joined = order.joined;
@@ -347,7 +345,7 @@ router.post("/getorderbyid", postRequestMiddleware, function(request, response) 
                 invitedgroups: invitedgroup,
                 invitedfriends: invitedfriend
             }
-            console.log("orderobj", orderobj)
+
             response.json(orderobj)
         };
 
@@ -358,7 +356,6 @@ router.post("/getorderbyid", postRequestMiddleware, function(request, response) 
 
 
 })
-
 
 
 module.exports = router;
