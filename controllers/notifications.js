@@ -25,6 +25,12 @@ var notifMsg = function(notification) {
         else console.log('orderid not found',notification)
 
     }
+    if (msg.indexOf('[e]') !== -1) {
+
+        msg[msg.indexOf('[e]')] = {}
+
+
+    }
     if (msg.indexOf('[g]') !== -1) {
         if (notification.groupId) {
             notification.groupId['type'] = "group";
@@ -33,7 +39,11 @@ var notifMsg = function(notification) {
         else console.log('groupid not found',notification)
 
     }
-    if(msg.length==1){msg.push({empty:0})}
+    if(msg.length==1){
+        msg[1]=msg[0]
+        msg[0]={}
+        msg.push({empty:0})
+    }
     console.log(msg)
     return { msg: msg, notif_id: notification._id }
 }
@@ -44,10 +54,10 @@ const msgs = ['[u]: is now friend with :[u]',
     '[u]: created :[g]',
     '[u]: invitated you to :[o]: order',
     '[u]: made an order :[o]',
-    'your :[o]: was sent',
-    'your order to :[r]: was deleted',
+    '[e]: your :[o]: order was sent',
+    '[e]: your order to :[r]: was deleted',
     '[u]: added you as friend',
-    'your group :[g]: was invited to :[o]: order'
+    '[e]: your group :[g]: was invited to order :[o]'
 ];
 //
 var addnotif = function(types, parts) {
