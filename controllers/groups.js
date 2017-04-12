@@ -87,12 +87,14 @@ router.delete("/:id", function(request, response) {
     mongoose.model("groups").remove({ _id: request.params.id, owner: request.token._id }, function(err, group) {
         if (!err) {
             response.status(200);
+            mongoose.model('notifications').remove({ groupId:ObjectId('request.params.id') })
             response.json({ success: true });
         } else {
             response.status(404);
             response.json({ success: false, error: 'request failed please try again later' });
         }
     });
+
 });
 
 //update group

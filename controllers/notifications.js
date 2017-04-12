@@ -34,6 +34,7 @@ var notifMsg = function(notification) {
 
     }
 
+
     return { msg: msg, notif_id: notification._id }
 }
 
@@ -44,7 +45,7 @@ const msgs = ['[u]: is now friend with :[u]',
     '[u]: invitated you to :[o]: order',
     '[u]: made an order :[o]',
     'your :[o]: was sent',
-    'your :[o]: was deleted',
+    'your order to :[r]: was deleted',
     '[u]: added you as friend',
     'your group :[g]: was invited to :[o]: order'
 ];
@@ -143,7 +144,7 @@ var addnotif = function(types, parts) {
                     case 6:
                         {
                             console.log('case6',parts)
-                            if (parts.order.hasOwnProperty('joined')) {
+                            if (parts.order.hasOwnProperty('joined') && parts.order.joined.length!==0) {
                                 console.log('yes')
                                 notification.to = parts.order.joined;
                                 for (var i = 0; i < notification.to.length; i++) {
@@ -161,14 +162,14 @@ var addnotif = function(types, parts) {
 
                     case 7:
                         {
-
-                            if (parts.order.hasOwnProperty('joined')) {
+                            console.log('case7',parts)
+                            if (parts.order.hasOwnProperty('joined') && parts.order.joined.length!==0) {
+                                console.log('yes')
                                 notification.to = parts.order.joined;
                                 for (var i = 0; i < notification.to.length; i++) {
                                     notification.seen[i] = { seen: false, id: notification.to[i].toString() };
                                 }
-                                notification.orderId = parts.order._id;
-                                notification.message = msgs[7];
+                                notification.message = 'your order to '+parts.order.resturant+' was canceled';
                             }
                             else flag=0
 

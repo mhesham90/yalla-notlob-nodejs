@@ -204,6 +204,8 @@ router.delete("/cancel", postRequestMiddleware, function(request, response) {
         //findOneAndRemove
         mongoose.model("orders").findOneAndRemove({ owner: user[0]._id, _id: request.body.id }, function(err, order) {
             if (!err) {
+                console.log('cancel',request.body.id)
+                mongoose.model('notifications').remove({ orderId:mongoose.Types.ObjectId(request.body.id) })
                 notifications.sendnotif([7], { order: order })
                 response.json("success");
                 console.log("success")
@@ -266,7 +268,7 @@ router.delete("/removemeal", postRequestMiddleware, function(request, response) 
 // })
 router.post("/join", postRequestMiddleware, function(request, response) {
     console.log("orderis:", request.body.id)
-    mongoose.model("orders").find({ joined: request.token._id }, function(err, joined) {
+    mongoose.model("orders").find({ _id:request.body.id,joined: request.token._id }, function(err, joined) {
         if (joined.length) {
             console.log("from joined if", joined)
             response.json({ success: "joined before" });
