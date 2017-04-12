@@ -4,6 +4,7 @@ var bodyParser = require("body-parser");
 var postRequestMiddleware = bodyParser.json({ limit: '20mb' });
 var mongoose = require("mongoose");
 var notifications = require("./notifications");
+var fs = require("fs");
 
 
 router.use(function(request, response, next) {
@@ -22,10 +23,26 @@ router.get("/", function(request, response) {
 
     mongoose.model("groups").find({ members: id }).populate('members owner', ['username', 'avatar']).exec(function(err, memberGroups) {
         if (!err) {
+            
             result.member = memberGroups;
             mongoose.model("groups").find({ owner: id }).populate('members owner', ['username', 'avatar']).exec(function(err, ownerGroups) {
                 if (!err) {
                     result.owner = ownerGroups;
+                    var modified = [];
+                    for (var type in result) {
+                        result[type].forEach(function(group) {
+                            if (modified.indexOf(group.owner._id) < 0){
+                                group.owner.avatar = fs.readFileSync(__dirname+"/../images/"+group.owner.avatar).toString('base64');
+                                modified.push(group.owner._id);
+                            }
+                            group.members.forEach(function(member) {
+                                if (modified.indexOf(member._id) < 0){
+                                    member.avatar = fs.readFileSync(__dirname+"/../images/"+member.avatar).toString('base64');
+                                    modified.push(member._id);
+                                }
+                            });
+                        });
+                    }
                     response.status(200);
                     response.json(result);
 
