@@ -4,6 +4,7 @@ var bodyParser = require("body-parser");
 var bcrypt = require("bcrypt");
 var postRequestMiddleware = bodyParser.json({ limit: '20mb' });
 var notifications = require("./notifications");
+var fs = require("fs");
 
 
 // var postRequestMiddleware=bodyParser.urlencoded({extended:false});
@@ -18,12 +19,17 @@ router.get("/listfriends", function(request, response) {
         // ' userId groupId orderId ',
         mongoose.model("users").populate(user, { path: "friends" }, function(err, result) {
             var friendsarray = result[0].friends;
+            var friend = {};
             var friends = [];
-            friendsarray.forEach(function(friend) {
+            friendsarray.forEach(function(singleFriend) {
+                var friend = {};
+                friend._id = singleFriend._id;
+                friend.email = singleFriend.email;
+                friend.username = singleFriend.username;
+                friend.avatar = fs.readFileSync(__dirname+"/../images/"+singleFriend.avatar).toString('base64');
                 friends.push(friend);
             })
             response.json({ friends: friends });
-            //  response.json(result);
         })
     })
 
