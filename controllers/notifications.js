@@ -10,17 +10,23 @@ var notifMsg = function(notification) {
     console.log(msg)
     msg = msg.split(':');
     if (msg.indexOf('[u]') !== -1) {
-        notification.userId['type'] = "user";
-        msg[msg.indexOf('[u]')] = notification.userId
+        if (notification.userId) {
+            notification.userId['type'] = "user";
+            msg[msg.indexOf('[u]')] = notification.userId
+        }
     }
 
     if (msg.indexOf('[o]') !== -1) {
-        notification.orderId['type'] = "order";
-        msg[msg.indexOf('[o]')] = notification.orderId
+        if (notification.orderId) {
+            notification.orderId['type'] = "order";
+            msg[msg.indexOf('[o]')] = notification.orderId
+        }
     }
     if (msg.indexOf('[g]') !== -1) {
-        notification.groupId['type'] = "group";
-        msg[msg.indexOf('[g]')] = notification.groupId
+        if (notification.groupId) {
+            notification.groupId['type'] = "group";
+            msg[msg.indexOf('[g]')] = notification.groupId
+        }
     }
 
     return { msg: msg, notif_id: notification._id }
