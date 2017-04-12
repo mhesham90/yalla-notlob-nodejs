@@ -118,6 +118,7 @@ router.post("/login",postRequestMiddleware,function(request,response){
          //check accessToken
 	   	bcrypt.compare(request.body.password, user[0].password, function(err, res) {
 		    if(res==true){
+                console.log('user',user[0])
 
 		    tokenData = {_id:user[0]._id, username: user[0].username, email: user[0].email};
 				jwt.sign(tokenData,APP_SECRET,{algorithm:"HS256"},function(err,token){

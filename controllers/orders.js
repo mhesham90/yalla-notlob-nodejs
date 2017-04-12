@@ -124,6 +124,7 @@ router.post("/add", postRequestMiddleware, function(request, response) {
 
                 order.save(function(err) {
                     if (!err) {
+                        console.log('frends invited ------------------')
                         notifications.sendnotif([5,4], { user: request.token._id, order: order })
                         response.json("success");
 
@@ -167,7 +168,8 @@ router.post("/add", postRequestMiddleware, function(request, response) {
                 order2.save(function(err) {
                     console.log("order", order2)
                     if (!err) {
-                        console.log("order", order2)
+                        console.log('groups invited ------------------')
+
                         notifications.sendnotif([5,9], { user: request.token._id, order: order2, group: groups[0] })
 
                         response.json("success");
@@ -206,7 +208,7 @@ router.delete("/cancel", postRequestMiddleware, function(request, response) {
             if (!err) {
                 console.log('cancel',request.body.id)
                 mongoose.model('notifications').find({ orderId:request.body.id }).remove().exec()
-                notifications.sendnotif([7], { order: order })
+                notifications.sendnotif([7], { order: order,user: request.token._id })
                 response.json("success");
                 console.log("success")
             } else {
@@ -322,7 +324,7 @@ router.post("/checkout", postRequestMiddleware, function(request, response) {
     var id2 = mongoose.Types.ObjectId(request.body.id)
     mongoose.model("orders").findOneAndUpdate({ _id: id2 }, { $set: { status: "finished" } }, function(err, order) {
         if (!err) {
-            notifications.sendnotif([6], { order: order })
+            notifications.sendnotif([6], { order: order ,user: request.token._id})
             console.log("successssss")
             response.json({ success: true });
         }

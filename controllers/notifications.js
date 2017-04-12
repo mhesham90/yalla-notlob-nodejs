@@ -34,6 +34,7 @@ var notifMsg = function(notification) {
 
     }
     if(msg.length==1){msg.push({empty:0})}
+    console.log(msg)
     return { msg: msg, notif_id: notification._id }
 }
 
@@ -56,11 +57,13 @@ var addnotif = function(types, parts) {
    // console.log("parts", parts);
     //console.log('in if')
     mongoose.model("users").find({ _id: parts.user }, function(err, user) {
-       // console.log(parts);
+       console.log('parts',parts);
+       console.log('types',types);
+       console.log('user',user[0]);
         if (!err) {
-            if (user.length !== 0)
-                var friends = user[0].friends;
-            //console.log('friends',friends);
+            if (user.length !== 0){
+            var friends = user[0].friends ||Array()
+            console.log('friends',friends);
 
             types.forEach(function(type) {
                 var notification = { seen: [] };
@@ -120,6 +123,8 @@ var addnotif = function(types, parts) {
                             notification.orderId = parts.order._id;
                             notification.userId = parts.user;
                             notification.message = msgs[5];
+                            console.log('case5',notification)
+
                         }
                             break;
 
@@ -143,10 +148,10 @@ var addnotif = function(types, parts) {
                     case 6:
                         {
                             console.log('case6',parts,parts.order.joined.length,parts.order.hasOwnProperty('joined'));
-
-                            if ( parts.order.joined.length) {
+                            var joined=parts.order.joined || Array()
+                            if (joined.length) {
                                 console.log('yes')
-                                notification.to = parts.order.joined;
+                                notification.to = joined;
                                 for (var i = 0; i < notification.to.length; i++) {
                                     notification.seen[i] = { seen: false, id: notification.to[i].toString() };
                                 }
@@ -163,9 +168,10 @@ var addnotif = function(types, parts) {
                     case 7:
                         {
                             console.log('case7',parts)
-                            if ( parts.order.joined.length) {
+                            var joined=parts.order.joined || Array()
+                            if ( joined.length) {
                                 console.log('yes')
-                                notification.to = parts.order.joined;
+                                notification.to = joined;
                                 for (var i = 0; i < notification.to.length; i++) {
                                     notification.seen[i] = { seen: false, id: notification.to[i].toString() };
                                 }
@@ -230,6 +236,9 @@ var addnotif = function(types, parts) {
 
 
         } else console.log('error', err);
+        }
+        else console.log('user not logged in')
+
     });
 
 
