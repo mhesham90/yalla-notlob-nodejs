@@ -33,8 +33,7 @@ var notifMsg = function(notification) {
         else console.log('groupid not found',notification)
 
     }
-
-
+    if(msg.length==1){msg.push({empty:0})}
     return { msg: msg, notif_id: notification._id }
 }
 
@@ -143,8 +142,9 @@ var addnotif = function(types, parts) {
 
                     case 6:
                         {
-                            console.log('case6',parts)
-                            if (parts.order.hasOwnProperty('joined') && parts.order.joined.length!==0) {
+                            console.log('case6',parts,parts.order.joined.length,parts.order.hasOwnProperty('joined'));
+
+                            if ( parts.order.joined.length) {
                                 console.log('yes')
                                 notification.to = parts.order.joined;
                                 for (var i = 0; i < notification.to.length; i++) {
@@ -163,7 +163,7 @@ var addnotif = function(types, parts) {
                     case 7:
                         {
                             console.log('case7',parts)
-                            if (parts.order.hasOwnProperty('joined') && parts.order.joined.length!==0) {
+                            if ( parts.order.joined.length) {
                                 console.log('yes')
                                 notification.to = parts.order.joined;
                                 for (var i = 0; i < notification.to.length; i++) {

@@ -205,7 +205,7 @@ router.delete("/cancel", postRequestMiddleware, function(request, response) {
         mongoose.model("orders").findOneAndRemove({ owner: user[0]._id, _id: request.body.id }, function(err, order) {
             if (!err) {
                 console.log('cancel',request.body.id)
-                mongoose.model('notifications').remove({ orderId:mongoose.Types.ObjectId(request.body.id) })
+                mongoose.model('notifications').find({ orderId:request.body.id }).remove().exec()
                 notifications.sendnotif([7], { order: order })
                 response.json("success");
                 console.log("success")
