@@ -61,10 +61,10 @@ var addnotif = function(types, parts) {
             if (user.length !== 0)
                 var friends = user[0].friends;
             //console.log('friends',friends);
-            var flag=1
+
             types.forEach(function(type) {
                 var notification = { seen: [] };
-
+                var flag=1
                 switch (type) {
                     case 0:
                         {
@@ -142,7 +142,9 @@ var addnotif = function(types, parts) {
 
                     case 6:
                         {
+                            console.log('case6',parts)
                             if (parts.order.hasOwnProperty('joined')) {
+                                console.log('yes')
                                 notification.to = parts.order.joined;
                                 for (var i = 0; i < notification.to.length; i++) {
                                     notification.seen[i] = { seen: false, id: notification.to[i].toString() };
@@ -187,16 +189,18 @@ var addnotif = function(types, parts) {
                     case 9:
                         {
                             notification.to = [];
-
-                            notification.to.push.apply(notification.to, parts.group.members);
+                            parts.group.members.forEach(function (member) {
+                                notification.to.push( member._id);
+                            })
 
 
                             for (var i = 0; i < notification.to.length; i++) {
                                 notification.seen[i] = { seen: false, id: notification.to[i].toString() };
-
                             }
+                            notification.message = msgs[9];
                             notification.orderId = parts.order._id;
                             notification.groupId = parts.group._id;
+                            //console.log('case9 notif',notification)
                         }
                         break;
 

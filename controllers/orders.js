@@ -124,7 +124,7 @@ router.post("/add", postRequestMiddleware, function(request, response) {
 
                 order.save(function(err) {
                     if (!err) {
-                        notifications.sendnotif([4, 5], { user: request.token._id, order: order })
+                        notifications.sendnotif([5,4], { user: request.token._id, order: order })
                         response.json("success");
 
                     } else {
@@ -168,7 +168,7 @@ router.post("/add", postRequestMiddleware, function(request, response) {
                     console.log("order", order2)
                     if (!err) {
                         console.log("order", order2)
-                        notifications.sendnotif([9, 5], { user: request.token._id, order: order2, group: groups[0] })
+                        notifications.sendnotif([5,9], { user: request.token._id, order: order2, group: groups[0] })
 
                         response.json("success");
                     } else {
@@ -318,8 +318,9 @@ router.post("/addmeal", postRequestMiddleware, function(request, response) {
 router.post("/checkout", postRequestMiddleware, function(request, response) {
     var id = mongoose.Types.ObjectId(request.token.id)
     var id2 = mongoose.Types.ObjectId(request.body.id)
-    mongoose.model("orders").update({ _id: id2 }, { $set: { status: "finished" } }, function(err, order) {
+    mongoose.model("orders").findOneAndUpdate({ _id: id2 }, { $set: { status: "finished" } }, function(err, order) {
         if (!err) {
+            notifications.sendnotif([6], { order: order })
             console.log("successssss")
             response.json({ success: true });
         }
