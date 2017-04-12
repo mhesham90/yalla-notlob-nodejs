@@ -136,37 +136,39 @@ router.post("/add", postRequestMiddleware, function(request, response) {
         } else if (request.body.invitedgroup) {
 
 
-            mongoose.model("groups").find({ name: { $in: request.body.invitedgroup } }, { members: true }).populate('members', ['name'], { _id: false }).exec(function(err, groups) {
+            mongoose.model("groups").find({ name: { $in: request.body.invitedgroup } }, { members: true }).populate('members', ['username'], { _id: false }).exec(function(err, groups) {
                 var ingroups = [];
-                invmembers = []
-                    // console.log("member", member)
+                var invmembers = ["amira"]
+
                 console.log("member", groups[0].members)
                 var member = groups[0].members
 
-                groups[0].members.forEach(function(member) {
-                    invmembers.push(member.name)
-                })
-                console.log("membernames", invmembers)
+
+
 
 
                 //console.log("groups in add ordder", members)
                 groups.forEach(function(g) {
                     ingroups.push({ _id: g._id })
                 })
-                var order = new OrderModel({
+                var order2 = new OrderModel({
                     forr: request.body.forr,
                     resturant: request.body.resturant,
                     name: request.body.name,
                     owner: user[0]._id,
                     checkedout: false,
+                    status: "waiting",
                     meals: [],
                     invitedgroups: ingroups,
-                    invitedfriends: invmembers,
+                    invitedfriends: groups[0].members,
                     joined: []
                 });
-                order.save(function(err) {
+                console.log("orderb4save", order2)
+                order2.save(function(err) {
+                    console.log("order", order2)
                     if (!err) {
-                        notifications.sendnotif([9, 5], { user: request.token._id, order: order, group: groups[0] })
+                        console.log("order", order2)
+                        notifications.sendnotif([9, 5], { user: request.token._id, order: order2, group: groups[0] })
 
                         response.json("success");
                     } else {
