@@ -104,7 +104,6 @@ router.post('/addMember', postRequestMiddleware, function(request, response) {
         } else {
             mongoose.model("groups").findOneAndUpdate({ _id: id }, { $push: { members: user[0]._id } }, function(err, groups) {
                 if (!err) {
-                    groups.members.push(user[0]._id);
                     notifications.sendnotif([1, 2], { group: groups, userId: user[0]._id, user: request.token._id })
 
                     response.status(200);
