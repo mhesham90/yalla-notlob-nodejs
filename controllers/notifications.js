@@ -13,24 +13,21 @@ var notifMsg = function(notification) {
         if (notification.userId) {
             notification.userId['type'] = "user";
             msg[msg.indexOf('[u]')] = notification.userId
-        }
-        else console.log('userid not found',notification)
+        } else console.log('userid not found', notification)
     }
 
     if (msg.indexOf('[o]') !== -1) {
         if (notification.orderId) {
             notification.orderId['type'] = "order";
             msg[msg.indexOf('[o]')] = notification.orderId
-        }
-        else console.log('orderid not found',notification)
+        } else console.log('orderid not found', notification)
 
     }
     if (msg.indexOf('[g]') !== -1) {
         if (notification.groupId) {
             notification.groupId['type'] = "group";
             msg[msg.indexOf('[g]')] = notification.groupId
-        }
-        else console.log('groupid not found',notification)
+        } else console.log('groupid not found', notification)
 
     }
 
@@ -43,20 +40,20 @@ const msgs = ['[u]: is now friend with :[u]',
     '[u]: created :[g]',
     '[u]: invitated you to :[o]: order',
     '[u]: made an order :[o]',
-    'your :[o]: was sent',
-    'your :[o]: was deleted',
+    '[o]:your  was sent',
+    '[o]:your  was deleted',
     '[u]: added you as friend',
-    'your group :[g]: was invited to :[o]: order'
+    '[g]: was invited to :[o]: order'
 ];
 //
 var addnotif = function(types, parts) {
 
 
 
-   // console.log("parts", parts);
+    // console.log("parts", parts);
     //console.log('in if')
     mongoose.model("users").find({ _id: parts.user }, function(err, user) {
-       // console.log(parts);
+        // console.log(parts);
         if (!err) {
             if (user.length !== 0)
                 var friends = user[0].friends;
@@ -64,7 +61,7 @@ var addnotif = function(types, parts) {
 
             types.forEach(function(type) {
                 var notification = { seen: [] };
-                var flag=1
+                var flag = 1
                 switch (type) {
                     case 0:
                         {
@@ -84,15 +81,15 @@ var addnotif = function(types, parts) {
                             notification.message = msgs[3];
                         }
 
-                            break;
+                        break;
                     case 1:
                         {
                             notification.to = parts.userId;
                             notification.seen[0] = { seen: false, id: parts.userId.toString() };
 
-                                notification.groupId = parts.group._id;
-                                notification.userId = parts.user;
-                                notification.message = msgs[1];
+                            notification.groupId = parts.group._id;
+                            notification.userId = parts.user;
+                            notification.message = msgs[1];
                             break;
                         }
 
@@ -121,7 +118,7 @@ var addnotif = function(types, parts) {
                             notification.userId = parts.user;
                             notification.message = msgs[5];
                         }
-                            break;
+                        break;
 
                     case 4:
                         {
@@ -142,7 +139,7 @@ var addnotif = function(types, parts) {
 
                     case 6:
                         {
-                            console.log('case6',parts)
+                            console.log('case6', parts)
                             if (parts.order.hasOwnProperty('joined')) {
                                 console.log('yes')
                                 notification.to = parts.order.joined;
@@ -151,8 +148,7 @@ var addnotif = function(types, parts) {
                                 }
                                 notification.orderId = parts.order._id;
                                 notification.message = msgs[6];
-                            }
-                            else flag=0
+                            } else flag = 0
 
 
                         }
@@ -169,8 +165,7 @@ var addnotif = function(types, parts) {
                                 }
                                 notification.orderId = parts.order._id;
                                 notification.message = msgs[7];
-                            }
-                            else flag=0
+                            } else flag = 0
 
                         }
 
@@ -189,8 +184,8 @@ var addnotif = function(types, parts) {
                     case 9:
                         {
                             notification.to = [];
-                            parts.group.members.forEach(function (member) {
-                                notification.to.push( member._id);
+                            parts.group.members.forEach(function(member) {
+                                notification.to.push(member._id);
                             })
 
 
@@ -208,11 +203,11 @@ var addnotif = function(types, parts) {
                         break;
 
                 }
-               // console.log('after', notification);
-                if(flag==1 && notification.to.length !==0 ) {
+                // console.log('after', notification);
+                if (flag == 1 && notification.to.length !== 0) {
                     var notifModel = mongoose.model("notifications");
                     var notif = new notifModel(notification);
-                    notif.save(function (err) {
+                    notif.save(function(err) {
                         if (!err) {
                             console.log("success");
                         } else {
@@ -243,18 +238,31 @@ router['sendnotif'] = function(types, parts) {
     addnotif(types, parts);
     for (var clientid in ioLoggedClients) {
         if (notification.to.includes(clientid)) {
-            ioLoggedClients[clientid].emit('newNotif');
+            ioLoggedClients[clientid].emit("message", 'newNotif');
         }
     }
 }
 
+
 io.on("connection", function(client) {
+    console.log("io")
+    client.emit('message', { hello: 'world' });
+
+    // console.log(client)
     ioUnloggedClients.push(client);
     client.on('login', function(id) {
         ioLoggedClients[id] = client;
         ioUnloggedClients.splice(ioUnloggedClients.indexOf(client), 1);
 
+        for (var clientid in ioLoggedClients) {
+            if (notification.to.includes(clientid)) {
+                console.log(ioLoggedClients[clientid])
+                ioLoggedClients[clientid].emit('message', 'newNotif');
+            }
+        }
+
     })
+
 
 });
 
