@@ -10,7 +10,8 @@ var mongoose = require("mongoose");
 var validator=require('validator');
 var jwt=require("jsonwebtoken");
 const APP_SECRET="@#$@#%!@#!@#";
-
+var fs = require("fs");
+      
 // var uploadFileMiddleware=multer({dest:__dirname+"/../public",
 // fileFilter:function(request,file,cb){
 //   if(file.mimetype=="image/jpeg" || file.mimetype=="image/png"){
@@ -72,7 +73,11 @@ router.post("/register",postRequestMiddleware,function(request,response){
       var name=validator.escape(request.body.name);
       var username=validator.escape(request.body.username);
       var password=validator.escape(request.body.password);
-      var avatar=request.body.image || "iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAAAAAB3tzPbAAACOUlEQVR4Ae3aCQrrIBRG4e5/Tz+CBAlIkIAECUjoSt48z/GZeAvnrMCvc6/38XzxAAAAYC4AAAAAAAAAAAAAAAAAAAAAAAAAAAAMCAAAAAAAAAAAAAAAAPsagz4V4rq/FmCLTj/k4vYqgCN5/TKfjlcAJKff5pJ5QPH6Y77YBiz6a4thQJ30D03VKmB3+qfcbhOwO+l+waP/+VsEBgDV6USumgNMOtVkDbDoZIstQNHpiimA1+m8JUBSQ8kO4HBqyB1mAElNJTMAr6a8FcCmxjYjgKjGohGAU2POBmBXc7sJwKrmVhOAqOaiCUBQc8EEQO0JwPMB4ADASwhAe3yR8VPiP3/M8XOaPzQd/lLyp56xSuvnUGK0yHC313idCw6umNov+bhm5aK7fdWAZQ/WbdoXnlg5Y+mvfe2SxVdWj20FAAAAAAAAAAAAwFQAAJSS0hwmfVMIc0qlmAfsOQWvP+RDyrtNQM1L0D8WllxNAWqOXifzMVcbgG3xaswv22jAFp3a6zFteYw8fQ9DM6Amr275VG8GlFmdm8uNgDzpgqZ8EyB7XZTPNwDKpAubysWAOuvi5nolYHW6PLdeBjiCbikc1wCK0025cgUg68Zyf0DUrcXegKibi30Bq25v7QnYNKCtH+BwGpA7ugFmDWnuBSgaVOkECBpU6AOoGlbtAlg1rLULIGhYoQvAaViuC0AD6wE4Xh1QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADA194CuqC6onikxXwAAAAASUVORK5CYII=";
+      
+      var img=request.body.image || "iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAAAAAB3tzPbAAACOUlEQVR4Ae3aCQrrIBRG4e5/Tz+CBAlIkIAECUjoSt48z/GZeAvnrMCvc6/38XzxAAAAYC4AAAAAAAAAAAAAAAAAAAAAAAAAAAAMCAAAAAAAAAAAAAAAAPsagz4V4rq/FmCLTj/k4vYqgCN5/TKfjlcAJKff5pJ5QPH6Y77YBiz6a4thQJ30D03VKmB3+qfcbhOwO+l+waP/+VsEBgDV6USumgNMOtVkDbDoZIstQNHpiimA1+m8JUBSQ8kO4HBqyB1mAElNJTMAr6a8FcCmxjYjgKjGohGAU2POBmBXc7sJwKrmVhOAqOaiCUBQc8EEQO0JwPMB4ADASwhAe3yR8VPiP3/M8XOaPzQd/lLyp56xSuvnUGK0yHC313idCw6umNov+bhm5aK7fdWAZQ/WbdoXnlg5Y+mvfe2SxVdWj20FAAAAAAAAAAAAwFQAAJSS0hwmfVMIc0qlmAfsOQWvP+RDyrtNQM1L0D8WllxNAWqOXifzMVcbgG3xaswv22jAFp3a6zFteYw8fQ9DM6Amr275VG8GlFmdm8uNgDzpgqZ8EyB7XZTPNwDKpAubysWAOuvi5nolYHW6PLdeBjiCbikc1wCK0025cgUg68Zyf0DUrcXegKibi30Bq25v7QnYNKCtH+BwGpA7ugFmDWnuBSgaVOkECBpU6AOoGlbtAlg1rLULIGhYoQvAaViuC0AD6wE4Xh1QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADA194CuqC6onikxXwAAAAASUVORK5CYII=";
+      var bitmap = new Buffer(img, 'base64');
+      var avatar = username+Date.now();
+      fs.writeFileSync(__dirname+"/../images/"+avatar, bitmap);
       //  var mail=request.body.email;
       //  var username=request.body.username;
       //  var password=request.body.password;
@@ -114,17 +119,14 @@ router.post("/login",postRequestMiddleware,function(request,response){
 	   	bcrypt.compare(request.body.password, user[0].password, function(err, res) {
 		    if(res==true){
 
-		    //  response.json({success:true,id:user[0]._id})
-		    //  response.redirect("/home")
-
-		    // console.log(user[0]);
-		    // var userstr=user[0]._id
-		    	delete user[0].password;
-				jwt.sign(user[0],APP_SECRET,{algorithm:"HS256"},function(err,token){
+		    tokenData = {_id:user[0]._id, username: user[0].username, email: user[0].email};
+				jwt.sign(tokenData,APP_SECRET,{algorithm:"HS256"},function(err,token){
 		        // request.accesstoken=token;
 		        // console.log(token);
 		        // response.json(token);
-		      		response.json({token:token, success:true})
+              user[0].avatar = fs.readFileSync(__dirname+"/../images/"+user[0].avatar).toString('base64');
+
+		      		response.json({token:token, me: user[0], success:true})
 		      	})
 		    // }else{
 		    // 	response.json({msg:'wrong email or password',success:false});
