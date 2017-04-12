@@ -38,7 +38,9 @@ router.get("/allorders", function(request, response) {
                         var invitedgroup = [];
                         var invitedfriend = [];
                         var grouparraylength = 0;
-                        //  var invited=order.invitedfriends.length+order.invitedgroups.length;
+                        if (order.invitedgroups.length) { var invited = order.invitedfriends.length + order.invitedgroups.length - 1 } else {
+                            var invited = order.invitedfriends.length + order.invitedgroups.length
+                        }
                         joined.forEach(function(joined) {
                             joinedarr.push(joined.name);
 
@@ -54,7 +56,7 @@ router.get("/allorders", function(request, response) {
                             //
                             //         // console.log(joinedarr)
                             //
-                        var invited = order.invitedfriends.length + grouparraylength;
+                            //var invited = order.invitedfriends.length + grouparraylength;
                         var orderobj = {
                                 name: order.name,
                                 id: order._id,
@@ -132,8 +134,22 @@ router.post("/add", postRequestMiddleware, function(request, response) {
                 })
             })
         } else if (request.body.invitedgroup) {
-            mongoose.model("groups").find({ name: { $in: request.body.invitedgroups } }, function(err, groups) {
+
+
+            mongoose.model("groups").find({ name: { $in: request.body.invitedgroup } }, { members: true }).populate('members', ['name'], { _id: false }).exec(function(err, groups) {
                 var ingroups = [];
+                invmembers = []
+                    // console.log("member", member)
+                console.log("member", groups[0].members)
+                var member = groups[0].members
+
+                groups[0].members.forEach(function(member) {
+                    invmembers.push(member.name)
+                })
+                console.log("membernames", invmembers)
+
+
+                //console.log("groups in add ordder", members)
                 groups.forEach(function(g) {
                     ingroups.push({ _id: g._id })
                 })
@@ -145,6 +161,7 @@ router.post("/add", postRequestMiddleware, function(request, response) {
                     checkedout: false,
                     meals: [],
                     invitedgroups: ingroups,
+                    invitedfriends: invmembers,
                     joined: []
                 });
                 order.save(function(err) {
@@ -247,16 +264,25 @@ router.delete("/removemeal", postRequestMiddleware, function(request, response) 
 // })
 router.post("/join", postRequestMiddleware, function(request, response) {
     console.log("orderis:", request.body.id)
-    mongoose.model("orders").update({ _id: request.body.id }, {
+    mongoose.model("orders").find({ joined: request.token._id }, function(err, joined) {
+        if (joined.length) {
+            console.log("from joined if", joined)
+            response.json({ success: "joined before" });
+        } else {
+            console.log("from else")
+            mongoose.model("orders").update({ _id: request.body.id }, {
 
-            $pull: { invitedfriends: request.token._id },
-            $push: { joined: request.token._id }
-        },
-        function(err, order) {
-            if (!err) {
-                response.json({ success: true });
-            }
-        })
+                    $pull: { invitedfriends: request.token._id },
+                    $push: { joined: request.token._id }
+                },
+                function(err, order) {
+                    if (!err) {
+                        response.json({ success: true });
+                    }
+                })
+        }
+
+    })
 })
 
 router.post("/addmeal", postRequestMiddleware, function(request, response) {
