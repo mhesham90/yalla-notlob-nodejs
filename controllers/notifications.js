@@ -271,27 +271,30 @@ router['sendnotif'] = function(types, parts) {
 
 
 io.on("connection", function(client) {
+
     console.log("io")
-    client.emit('message', { hello: 'world' });
+    client.emit('message', { unseen: "1" });
 
     // console.log(client)
-    ioUnloggedClients.push(client);
-    client.on('login', function(id) {
-        ioLoggedClients[id] = client;
-        ioUnloggedClients.splice(ioUnloggedClients.indexOf(client), 1);
+    // ioUnloggedClients.push(client);
+    // client.on('login', function(id) {
+    //     ioLoggedClients[id] = client;
+    //     ioUnloggedClients.splice(ioUnloggedClients.indexOf(client), 1);
 
-        for (var clientid in ioLoggedClients) {
-            if (notification.to.includes(clientid)) {
-                console.log(ioLoggedClients[clientid])
-                ioLoggedClients[clientid].emit('message', 'newNotif');
-            }
-        }
+    //     for (var clientid in ioLoggedClients) {
+    //         if (notification.to.includes(clientid)) {
+    //             console.log(ioLoggedClients[clientid])
+    //             ioLoggedClients[clientid].emit('message', 'newNotif');
+    //         }
+    //     }
 
-    })
+    // })
+    client.on('unseen', (message) => {
+        console.log("useen", message)
+        client.emit('message', { unseen: message })
 
-
-});
-
+    });
+})
 
 
 
