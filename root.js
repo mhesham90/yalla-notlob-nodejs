@@ -44,6 +44,10 @@ expressServer.use("/authenticate",authRouter);
 
 ////token middleware
 
+// expressServer.get('*', function(req, res) {
+//     res.sendfile('./public/yalla-notlob-angular2/src/index.html');
+// });
+
  expressServer.use(function (request,response,next) {
  	response.header("Access-Control-Allow-Origin","*");
     response.header("Access-Control-Allow-Headers","x_access_token, X-Requested-With, Content-Type");
@@ -70,6 +74,8 @@ expressServer.use("/authenticate",authRouter);
 
 
 });
+
+
 
 
 var userRouter = require("./controllers/user");

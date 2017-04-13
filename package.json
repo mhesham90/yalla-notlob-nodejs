@@ -2,9 +2,9 @@
   "name": "first_app",
   "description": "my first express app",
   "version": "1.0.0",
-  "main": "app3.js",
+  "main": "root.js",
   "scripts": {
-    "start": "node app3.js"
+    "start": "node root.js"
   },
   "dependencies": {
     "bcrypt": "^1.0.2",
@@ -21,8 +21,5 @@
     "validate": "^3.0.1",
     "validator": "^7.0.0"
   }
-  "scripts": {
-    "start": "node root.js"
-  },
-  "main": "root.js"
+  
 }
