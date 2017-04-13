@@ -54,7 +54,7 @@ expressServer.use("/authenticate", authRouter);
 // });
 
 
-/*expressServer.use(function(request, response, next) {
+expressServer.use(function(request, response, next) {
     response.header("Access-Control-Allow-Origin", "*");
     response.header("Access-Control-Allow-Headers", "x_access_token, X-Requested-With, Content-Type");
     // allow four HTTP method
@@ -79,7 +79,7 @@ expressServer.use("/authenticate", authRouter);
 
 
 });
-*/
+
 
 
 
