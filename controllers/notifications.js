@@ -317,18 +317,19 @@ router.get('/', function(request, response) {
 
 
 })
-router.get('/unseen',function (request,response) {
-    var id =request.token._id
-    mongoose.model('notifications').find({ 'seen.seen':false, 'seen.id':id}).populate(' userId groupId orderId usersId', ['username', 'name']).exec(function(err, notif) {
-     var notifff=[];
-     notif.forEach(function(notification) {
+router.get('/unseen', function(request, response) {
+    console.log("notification unseen")
+    var id = request.token._id
+    mongoose.model('notifications').find({ 'seen.seen': false, 'seen.id': id }).populate(' userId groupId orderId usersId', ['username', 'name']).exec(function(err, notif) {
+        var notifff = [];
+        notif.forEach(function(notification) {
 
-     var notif = notifMsg(notification);
-     notifff.push(notif);
-     console.log(notif);
-     })
-     response.json(notifff);
-     })
+            var notif = notifMsg(notification);
+            notifff.push(notif);
+            //console.log(notif);
+        })
+        response.json(notifff);
+    })
 })
 
 
@@ -336,12 +337,12 @@ router.get('/activities', function(request, response) {
 
 })
 
-router.put('/', postRequestMiddleware, function(request, response) {
-    var id = request.body.id;
-    console.log(id);
-    mongoose.model('notifications').update({ _id: id }, { $pull:{seen:{id:request.token._id,seen:false}} }, function(err) {
-        if (!err) console.log('success');
-        else console.log(err);
+router.get('/setseen', function(request, response) {
+    var id = request.token._id;
+    console.log("put id in notif", id);
+    mongoose.model('notifications').update({}, { $pull: { seen: { id: request.token._id, seen: false } } }, { multi: true }, function(err) {
+        if (!err) response.json({ success: 'success' });
+        else response.json({ success: 'false' });
     })
 
 
