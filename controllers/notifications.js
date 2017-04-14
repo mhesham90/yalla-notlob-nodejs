@@ -239,12 +239,11 @@ var addnotif = function(types, parts) {
                             }
 
                         });
-                    for (var clientid in ioLoggedClients) {
-                        console.log("hhhhhhhhhhhhhh",notification.to);
-                        if (notification.to.includes(clientid)) {
+                    notification.to.forEach(function(clientid) {
+                        if(ioLoggedClients[clientid] != undefined){
                             ioLoggedClients[clientid].emit("message", 'newNotif');
                         }
-                    }
+                    })
 
                     }
 
@@ -274,13 +273,8 @@ router['sendnotif'] = function(types, parts) {
 
 
 io.on("connection", function(client) {
-
-    console.log("io")
-    client.emit('message', { unseen: "1" });
-
     client.on('login', function(id) {
-        ioLoggedClients[id] = client;
-
+        ioLoggedClients[id+""] = client;
     })
     client.on('disconnect', function () {
         ioLoggedClients.splice(ioLoggedClients.indexOf(client), 1);
@@ -309,15 +303,12 @@ router.get('/', function(request, response) {
 
 })
 router.get('/unseen', function(request, response) {
-    console.log("notification unseen")
     var id = request.token._id
     mongoose.model('notifications').find({ 'seen.seen': false, 'seen.id': id }).populate(' userId groupId orderId usersId', ['username', 'name']).exec(function(err, notif) {
         var notifff = [];
         notif.forEach(function(notification) {
-
             var notif = notifMsg(notification);
             notifff.push(notif);
-            //console.log(notif);
         })
         response.json(notifff);
     })
