@@ -239,6 +239,12 @@ var addnotif = function(types, parts) {
                             }
 
                         });
+                    for (var clientid in ioLoggedClients) {
+                        if (notification.to.includes(clientid)) {
+                            ioLoggedClients[clientid].emit("message", 'newNotif');
+                        }
+                    }
+
                     }
 
 
@@ -262,11 +268,7 @@ var router = express.Router();
 
 router['sendnotif'] = function(types, parts) {
     addnotif(types, parts);
-    for (var clientid in ioLoggedClients) {
-        if (notification.to.includes(clientid)) {
-            ioLoggedClients[clientid].emit("message", 'newNotif');
-        }
-    }
+    
 }
 
 
@@ -275,25 +277,13 @@ io.on("connection", function(client) {
     console.log("io")
     client.emit('message', { unseen: "1" });
 
-    // console.log(client)
-    // ioUnloggedClients.push(client);
-    // client.on('login', function(id) {
-    //     ioLoggedClients[id] = client;
-    //     ioUnloggedClients.splice(ioUnloggedClients.indexOf(client), 1);
+    client.on('login', function(id) {
+        ioLoggedClients[id] = client;
 
-    //     for (var clientid in ioLoggedClients) {
-    //         if (notification.to.includes(clientid)) {
-    //             console.log(ioLoggedClients[clientid])
-    //             ioLoggedClients[clientid].emit('message', 'newNotif');
-    //         }
-    //     }
-
-    // })
-    // client.on('unseen', (message) => {
-    //     console.log("useen", message)
-    //     client.emit('message', { unseen: message })
-    //
-    // });
+    })
+    client.on('disconnect', function () {
+        ioLoggedClients.splice(ioLoggedClients.indexOf(client), 1);
+    })
 })
 
 
