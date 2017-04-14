@@ -1,0 +1,8 @@
+{
+  "name": "yalla_notlob",
+  "description": "group online order",
+  "repository": "https://github.com/mhesham90/yalla-notlob-nodejs",
+  "logo": "http://node-js-sample.herokuapp.com/node.svg",
+  "keywords": ["node", "express", "heroku"],
+  "image": "heroku/nodejs"
+}
