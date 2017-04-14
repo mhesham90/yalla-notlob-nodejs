@@ -20,7 +20,7 @@
     "socket.io": "^1.7.3",
     "validate": "^3.0.1",
     "validator": "^7.0.0"
-  }
+  },
    "repository": {
     "type": "git",
     "url": "https://github.com/mhesham90/yalla-notlob-nodejs
