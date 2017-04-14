@@ -11,7 +11,7 @@ var validator=require('validator');
 var jwt=require("jsonwebtoken");
 const APP_SECRET="@#$@#%!@#!@#";
 var fs = require("fs");
-      
+
 // var uploadFileMiddleware=multer({dest:__dirname+"/../public",
 // fileFilter:function(request,file,cb){
 //   if(file.mimetype=="image/jpeg" || file.mimetype=="image/png"){
@@ -27,6 +27,7 @@ var fs = require("fs");
 router.use(function(request,response,next){
     // Set Origin to allow other domains to send request
     response.header("Access-Control-Allow-Origin","*");
+    // response.header("Access-Control-Allow-Headers","*");
     response.header("Access-Control-Allow-Headers","X-Requested-With, Content-Type");
     // allow four HTTP method
     response.header("Access-Control-Allow-Methods","GET,POST,PUT,DELETE");
@@ -46,7 +47,57 @@ router.get("/",function(request,response){
 });
 
 router.post("/loginwithfb",postRequestMiddleware,function(request,response){
+  mongoose.model("users").findOne({email:request.body.email},{},function(err,user){
+       if(user==undefined){
+         console.log("hpooo")
+        //  response.redirect(307,"/authenticate/register");
+        var UserModel=mongoose.model("users");
 
+          // var salt=bcrypt.genSaltSync();
+          // var hashedPassword=bcrypt.hashSync(request.body.password,salt);
+
+              var user=new UserModel({email:request.body.email,name:request.body.name,username:request.body.name,password:"123"});
+
+              user.save(function(err){
+
+                if(!err){
+
+                }else{
+
+
+                }
+              })
+
+
+              tokenData = {username: request.body.name, email: request.body.email};
+              jwt.sign(tokenData,APP_SECRET,{algorithm:"HS256"},function(err,token){
+                  // request.accesstoken=token;
+                  // console.log(token);
+                  // response.json(token);
+                    // suser.avatar = fs.readFileSync(__dirname+"/../images/"+request.body.picture).toString('base64');
+                    console.log("kuugglgy"+token)
+                    response.json({token:token, me: user, success:true})
+                  })
+
+}
+
+          else {
+            console.log("mwgoodd")
+            tokenData = {username: request.body.name, email: request.body.email};
+            jwt.sign(tokenData,APP_SECRET,{algorithm:"HS256"},function(err,token){
+                // request.accesstoken=token;
+                // console.log(token);
+                // response.json(token);
+                  // user.avatar = fs.readFileSync(__dirname+"/../images/"+request.body.picture).toString('base64');
+  console.log("kuugglgy"+token)
+                  response.json({token:token, me: user, success:true})
+                })
+          }
+
+
+       }
+
+     )
 })
 
 router.post("/register",postRequestMiddleware,function(request,response){
@@ -73,7 +124,7 @@ router.post("/register",postRequestMiddleware,function(request,response){
       var name=validator.escape(request.body.name);
       var username=validator.escape(request.body.username);
       var password=validator.escape(request.body.password);
-      
+
       var img=request.body.image || "iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAAAAAB3tzPbAAACOUlEQVR4Ae3aCQrrIBRG4e5/Tz+CBAlIkIAECUjoSt48z/GZeAvnrMCvc6/38XzxAAAAYC4AAAAAAAAAAAAAAAAAAAAAAAAAAAAMCAAAAAAAAAAAAAAAAPsagz4V4rq/FmCLTj/k4vYqgCN5/TKfjlcAJKff5pJ5QPH6Y77YBiz6a4thQJ30D03VKmB3+qfcbhOwO+l+waP/+VsEBgDV6USumgNMOtVkDbDoZIstQNHpiimA1+m8JUBSQ8kO4HBqyB1mAElNJTMAr6a8FcCmxjYjgKjGohGAU2POBmBXc7sJwKrmVhOAqOaiCUBQc8EEQO0JwPMB4ADASwhAe3yR8VPiP3/M8XOaPzQd/lLyp56xSuvnUGK0yHC313idCw6umNov+bhm5aK7fdWAZQ/WbdoXnlg5Y+mvfe2SxVdWj20FAAAAAAAAAAAAwFQAAJSS0hwmfVMIc0qlmAfsOQWvP+RDyrtNQM1L0D8WllxNAWqOXifzMVcbgG3xaswv22jAFp3a6zFteYw8fQ9DM6Amr275VG8GlFmdm8uNgDzpgqZ8EyB7XZTPNwDKpAubysWAOuvi5nolYHW6PLdeBjiCbikc1wCK0025cgUg68Zyf0DUrcXegKibi30Bq25v7QnYNKCtH+BwGpA7ugFmDWnuBSgaVOkECBpU6AOoGlbtAlg1rLULIGhYoQvAaViuC0AD6wE4Xh1QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADA194CuqC6onikxXwAAAAASUVORK5CYII=";
       var bitmap = new Buffer(img, 'base64');
       var avatar = username+Date.now();
@@ -106,6 +157,9 @@ mongoose.model("users").find({email:request.body.email},{},function(err,user){
 // response.send("ay7aga");
 //,avatar:request.file.filename
 //uploadFileMiddleware.single("avatar"),
+}
+if(request.body.firstname){
+
 }
     //insert into db
     //response.json
