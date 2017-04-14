@@ -101,7 +101,7 @@ var addnotif = function(types, parts) {
                             break;
                         case 1:
                             {
-                                notification.to = parts.userId;
+                                notification.to = [parts.userId];
                                 notification.seen[0] = { seen: false, id: parts.userId.toString() };
 
                                 notification.groupId = parts.group._id;
@@ -112,7 +112,7 @@ var addnotif = function(types, parts) {
 
                         case 2:
                             {
-                                notification.userId = parts.userId;
+                                notification.userId = [parts.userId];
                                 notification.to = parts.group.members;
                                 for (var i = 0; i < notification.to.length; i++) {
                                     notification.seen[i] = { seen: false, id: notification.to[i].toString() };
@@ -197,7 +197,7 @@ var addnotif = function(types, parts) {
 
                         case 8:
                             {
-                                notification.to = parts.userId;
+                                notification.to = [parts.userId];
                                 notification.seen[0] = { seen: false, id: parts.userId.toString() }
                                 notification.userId = parts.user;
                                 notification.message = msgs[8];
@@ -240,6 +240,7 @@ var addnotif = function(types, parts) {
 
                         });
                     for (var clientid in ioLoggedClients) {
+                        console.log("hhhhhhhhhhhhhh",notification.to);
                         if (notification.to.includes(clientid)) {
                             ioLoggedClients[clientid].emit("message", 'newNotif');
                         }
